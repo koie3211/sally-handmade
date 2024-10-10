@@ -42,11 +42,11 @@ class LineController extends Controller
 {
     public function webhook(Request $request)
     {
-        info(json_encode($request->input()));
+        info(json_encode($request->input(), JSON_UNESCAPED_UNICODE));
 
         try {
             $parsedEvents = EventRequestParser::parseEventRequest(
-                json_encode($request->input()),
+                json_encode($request->input(), JSON_UNESCAPED_UNICODE),
                 config('services.line.channel_secret'),
                 $request->header(HTTPHeader::LINE_SIGNATURE)
             );
