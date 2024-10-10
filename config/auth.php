@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'adminhub' => [
+            'driver' => 'sanctum',
+            'provider' => 'adminhub',
+        ],
     ],
 
     /*
@@ -63,6 +68,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+        ],
+
+        'adminhub' => [
+            'driver' => 'eloquent',
+            'model' =>App\Models\AdminHubUser::class,
         ],
 
         // 'users' => [
