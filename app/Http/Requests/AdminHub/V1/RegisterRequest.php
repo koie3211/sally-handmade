@@ -22,4 +22,14 @@ class RegisterRequest extends FormRequest
             'password' => ['required', 'string', 'confirmed'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'account' => '帳號',
+            'name' => '姓名',
+            'email' => 'Email',
+            'password' => '密碼',
+        ];
+    }
 }

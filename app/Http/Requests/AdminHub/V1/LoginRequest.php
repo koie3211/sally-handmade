@@ -21,4 +21,13 @@ class LoginRequest extends FormRequest
             'remember' => ['nullable', 'boolean'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'account' => '帳號',
+            'password' => '密碼',
+            'remember' => '記住我',
+        ];
+    }
 }

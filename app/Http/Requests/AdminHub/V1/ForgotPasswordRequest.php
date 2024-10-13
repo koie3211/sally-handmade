@@ -19,4 +19,11 @@ class ForgotPasswordRequest extends FormRequest
             'email' => ['required', 'email:rfc,dns', 'max:100'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'email' => 'Email',
+        ];
+    }
 }

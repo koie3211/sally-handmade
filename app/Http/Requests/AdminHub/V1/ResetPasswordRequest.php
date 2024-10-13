@@ -21,4 +21,12 @@ class ResetPasswordRequest extends FormRequest
             'password' => ['required', 'string', 'confirmed'],
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'email' => 'Email',
+            'password' => '密碼',
+        ];
+    }
 }
