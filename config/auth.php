@@ -42,7 +42,7 @@ return [
         ],
 
         'adminhub' => [
-            'driver' => 'sanctum',
+            'driver' => 'session',
             'provider' => 'adminhub',
         ],
     ],
