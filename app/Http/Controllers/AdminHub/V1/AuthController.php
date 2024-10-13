@@ -19,6 +19,31 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    public function login(LoginRequest $request): JsonResponse
+    {
+        $input = $request->safe();
+
+        $auth = auth('adminhub')->attempt([
+            'account' => $input->account,
+            'password' => $input->password,
+        ], $input->remember ?? false);
+
+        abort_if(!$auth, 400, '帳密錯誤');
+
+        $request->session()->regenerate();
+
+        $user = $request->user();
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'avatar' => $user->avatar ? asset("uploads/adminhub/users/{$user->avatar}") : null,
+            'email' => $user->email,
+            'account' => $user->account,
+            'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
+        ]);
+    }
+
     public function register(RegisterRequest $request)
     {
         $input = $request->validated();
@@ -88,19 +113,8 @@ class AuthController extends Controller
         ], $status === Password::PASSWORD_RESET ? 200 : 400);
     }
 
-    public function login(LoginRequest $request): JsonResponse
+    public function user(Request $request): JsonResponse
     {
-        $input = $request->safe();
-
-        $auth = auth('adminhub')->attempt([
-            'account' => $input->account,
-            'password' => $input->password,
-        ], $input->remember ?? false);
-
-        abort_if(!$auth, 400, '帳密錯誤');
-
-        $request->session()->regenerate();
-
         $user = $request->user();
 
         return response()->json([
@@ -111,5 +125,16 @@ class AuthController extends Controller
             'account' => $user->account,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
         ]);
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        auth('adminhub')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return response()->json(null, 204);
     }
 }
