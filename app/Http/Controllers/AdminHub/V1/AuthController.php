@@ -84,7 +84,7 @@ class AuthController extends Controller
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
-        $status = Password::sendResetLink(
+        $status = Password::broker('adminhub')->sendResetLink(
             $request->only('email')
         );
 
@@ -95,7 +95,7 @@ class AuthController extends Controller
 
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
-        $status = Password::reset(
+        $status = Password::broker('adminhub')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (AdminHubUser $user, string $password) {
                 $user->forceFill([
