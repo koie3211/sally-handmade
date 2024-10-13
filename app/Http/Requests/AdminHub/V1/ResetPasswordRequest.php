@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ResetPasswordRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
+
     public function authorize(): bool
     {
         return true;

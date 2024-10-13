@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest
 {
+    protected $stopOnFirstFailure = true;
+
     public function authorize(): bool
     {
         return true;
