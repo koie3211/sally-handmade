@@ -18,10 +18,10 @@ Route::domain('adminhub.sally-handmade.com')->prefix('v1')->group(function () {
 
     Route::middleware('auth:adminhub')->group(function () {
         Route::post('admin/email/verification-notification', [AdminHub\V1\AuthController::class, 'resend'])->middleware(['auth:adminhub', 'throttle:6,1'])->name('verification.send');
+        Route::get('admin/user', [AdminHub\V1\AuthController::class, 'user']);
         Route::get('admin/logout', [AdminHub\V1\AuthController::class, 'logout']);
 
         Route::middleware('verified')->group(function () {
-            Route::get('admin/user', [AdminHub\V1\AuthController::class, 'user']);
         });
     });
 });
