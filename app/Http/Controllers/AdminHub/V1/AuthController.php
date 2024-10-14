@@ -32,7 +32,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        $user = $request->user();
+        $user = auth('adminhub')->user();
 
         return response()->json([
             'id' => $user->id,
