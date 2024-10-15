@@ -10,3 +10,7 @@ Route::domain('adminhub.sally-handmade.com')->group(function () {
     Route::view('admin/email/verify', 'adminhub.index')->name('verification.notice');
     Route::get('admin/email/verify/{id}/{hash}', [App\Http\Controllers\AdminHub\V1\AuthController::class, 'verifyEmail'])->middleware(['auth:adminhub', 'signed'])->name('verification.verify');
 });
+
+Route::domain('resume.sally-handmade.com')->group(function () {
+    Route::view('/', 'resume.index');
+});
