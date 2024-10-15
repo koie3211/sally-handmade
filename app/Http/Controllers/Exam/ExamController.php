@@ -13,7 +13,7 @@ class ExamController extends Controller
     public function index(request $request, Subject $subject = null): View
     {
         $data['questions'] = $subject
-            ? $subject->questions()->inRandomOrder()->limit(20)
+            ? $subject->questions()->inRandomOrder()->limit(20)->get()
             : SelectQuestion::inRandomOrder()->limit(20)->get();
 
         return view('exam.exam', $data);
