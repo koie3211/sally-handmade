@@ -7,7 +7,7 @@ use App\Http\Requests\AdminHub\V1\ForgotPasswordRequest;
 use App\Http\Requests\AdminHub\V1\LoginRequest;
 use App\Http\Requests\AdminHub\V1\RegisterRequest;
 use App\Http\Requests\AdminHub\V1\ResetPasswordRequest;
-use App\Models\AdminHubUser;
+use App\Models\AdminHub\AdminHubUser;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -70,7 +70,7 @@ class AuthController extends Controller
     {
         $request->fulfill();
 
-        return redirect('/');
+        return redirect('/admin');
     }
 
     public function resend(Request $request)

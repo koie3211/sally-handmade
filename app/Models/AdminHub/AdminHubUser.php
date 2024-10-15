@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Models;
-
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+namespace App\Models\AdminHub;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Line\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\LineUser;
+use App\Models\Line\LineUser;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
