@@ -20,5 +20,5 @@ Route::domain('resume.sally-handmade.com')->group(function () {
 Route::domain('exam.sally-handmade.com')->group(function () {
     Route::get('/', [Exam\IndexController::class, 'index']);
     Route::get('exam/{subject?}', [Exam\ExamController::class, 'index']);
-    Route::post('exam', [Exam\ExamController::class, 'store']);
+    Route::post('result', [Exam\ExamController::class, 'store']);
 });

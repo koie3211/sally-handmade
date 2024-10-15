@@ -75,7 +75,7 @@
                 <h2>開始測驗</h2>
             </div>
         </div>
-        <form id="exam-form" action="{{ url('exam') }}" method="post">
+        <form id="exam-form" action="{{ url('result') }}" method="post">
             @csrf
             <table class="table table-borderless">
                 <tbody>
