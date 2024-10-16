@@ -45,6 +45,16 @@ return [
             'driver' => 'session',
             'provider' => 'adminhub',
         ],
+
+        'music_user' => [
+            'driver' => 'passport',
+            'provider' => 'music_users',
+        ],
+
+        'music_admin' => [
+            'driver' => 'passport',
+            'provider' => 'music_admins',
+        ],
     ],
 
     /*
@@ -73,6 +83,16 @@ return [
         'adminhub' => [
             'driver' => 'eloquent',
             'model' =>App\Models\AdminHub\User::class,
+        ],
+
+        'music_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Music\User::class,
+        ],
+
+        'music_admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Music\Admin::class,
         ],
 
         // 'users' => [

@@ -45,6 +45,13 @@ return [
             'throw' => false,
         ],
 
+        'music' => [
+            'driver' => 'local',
+            'root' => public_path('music/uploads/music'),
+            'url' => env('APP_URL').'music/uploads/music',
+            'visibility' => 'public',
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

@@ -2,13 +2,14 @@
 
 use App\Http\Controllers\AdminHub;
 use App\Http\Controllers\Line;
+use App\Http\Controllers\Music;
 use Illuminate\Support\Facades\Route;
 
 Route::domain('line.sally-handmade.com')->group(function () {
-    Route::post('v1/webhook', [Line\V1\LineController::class, 'webhook']);
+    Route::post('api/v1/webhook', [Line\V1\LineController::class, 'webhook']);
 });
 
-Route::domain('adminhub.sally-handmade.com')->prefix('v1')->group(function () {
+Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function () {
     Route::middleware('guest:adminhub')->group(function () {
         Route::post('admin/login', [AdminHub\V1\AuthController::class, 'login']);
         Route::post('admin/register', [AdminHub\V1\AuthController::class, 'register']);
@@ -22,6 +23,41 @@ Route::domain('adminhub.sally-handmade.com')->prefix('v1')->group(function () {
         Route::get('admin/logout', [AdminHub\V1\AuthController::class, 'logout']);
 
         Route::middleware('verified')->group(function () {
+        });
+    });
+});
+
+Route::domain('api.sally-handmade.com')->name('music.')->group(function () {
+    Route::prefix('music/v1')->group(function () {
+        // 前台
+        Route::post('register', [Music\V1\AuthController::class, 'register']);
+        Route::post('login', [Music\V1\AuthController::class, 'login']);
+        Route::post('refresh', [Music\V1\AuthController::class, 'refresh']);
+
+        Route::get('music-type', [Music\V1\MusicTypeController::class, 'index']);
+        Route::get('music-type/{musicType}', [Music\V1\MusicTypeController::class, 'show']);
+        Route::get('music', [Music\V1\MusicController::class, 'index']);
+        Route::get('music/{music}', [Music\V1\MusicController::class, 'show']);
+
+        Route::middleware('auth:music_user')->group(function () {
+            Route::get('music/like', [Music\V1\MusicController::class, 'likeList']);
+            Route::get('music/{music}/like', [Music\V1\MusicController::class, 'like']);
+            Route::get('music/{music}/unlike', [Music\V1\MusicController::class, 'unlike']);
+            Route::get('logout', [Music\V1\AuthController::class, 'logout']);
+            Route::get('user', [Music\V1\AuthController::class, 'me']);
+        });
+
+        // 後台
+        Route::prefix('admin')->group(function () {
+            Route::post('login', [Music\V1\Admin\AuthController::class, 'login']);
+            Route::post('refresh', [Music\V1\Admin\AuthController::class, 'refresh']);
+
+            Route::middleware('auth:music_admin')->group(function () {
+                Route::apiResource('music-type', Music\V1\Admin\MusicTypeController::class);
+                Route::apiResource('music', Music\V1\Admin\MusicController::class);
+                Route::get('logout', [Music\V1\Admin\AuthController::class, 'logout']);
+                Route::get('user', [Music\V1\Admin\AuthController::class, 'me']);
+            });
         });
     });
 });
