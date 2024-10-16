@@ -34,11 +34,6 @@ Route::domain('api.sally-handmade.com')->name('music.')->group(function () {
         Route::post('login', [Music\V1\AuthController::class, 'login']);
         Route::post('refresh', [Music\V1\AuthController::class, 'refresh']);
 
-        Route::get('music-type', [Music\V1\MusicTypeController::class, 'index']);
-        Route::get('music-type/{musicType}', [Music\V1\MusicTypeController::class, 'show']);
-        Route::get('music', [Music\V1\MusicController::class, 'index']);
-        Route::get('music/{music}', [Music\V1\MusicController::class, 'show']);
-
         Route::middleware('auth:music_user')->group(function () {
             Route::get('music/like', [Music\V1\MusicController::class, 'likeList']);
             Route::get('music/{music}/like', [Music\V1\MusicController::class, 'like']);
@@ -59,5 +54,10 @@ Route::domain('api.sally-handmade.com')->name('music.')->group(function () {
                 Route::get('user', [Music\V1\Admin\AuthController::class, 'me']);
             });
         });
+
+        Route::get('music-type', [Music\V1\MusicTypeController::class, 'index']);
+        Route::get('music-type/{musicType}', [Music\V1\MusicTypeController::class, 'show']);
+        Route::get('music', [Music\V1\MusicController::class, 'index']);
+        Route::get('music/{music}', [Music\V1\MusicController::class, 'show']);
     });
 });

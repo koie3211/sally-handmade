@@ -23,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::shouldBeStrict(! $this->app->isProduction());
 
+        Passport::enablePasswordGrant();
+
         Passport::tokensExpireIn(now()->addHours(3));
         Passport::refreshTokensExpireIn(now()->addHours(8));
     }

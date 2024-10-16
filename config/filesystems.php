@@ -48,7 +48,7 @@ return [
         'music' => [
             'driver' => 'local',
             'root' => public_path('music/uploads/music'),
-            'url' => env('APP_URL').'music/uploads/music',
+            'url' => env('APP_URL').'/music/uploads/music',
             'visibility' => 'public',
         ],
 
