@@ -7,7 +7,7 @@ use App\Http\Requests\AdminHub\V1\ForgotPasswordRequest;
 use App\Http\Requests\AdminHub\V1\LoginRequest;
 use App\Http\Requests\AdminHub\V1\RegisterRequest;
 use App\Http\Requests\AdminHub\V1\ResetPasswordRequest;
-use App\Models\AdminHub\AdminHubUser;
+use App\Models\AdminHub\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -48,7 +48,7 @@ class AuthController extends Controller
     {
         $input = $request->validated();
 
-        $user = AdminHubUser::create($input);
+        $user = User::create($input);
 
         event(new Registered($user));
 
@@ -97,7 +97,7 @@ class AuthController extends Controller
     {
         $status = Password::broker('adminhub')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (AdminHubUser $user, string $password) {
+            function (User $user, string $password) {
                 $user->forceFill([
                     'password' => $password,
                 ])->setRememberToken(Str::random(60));

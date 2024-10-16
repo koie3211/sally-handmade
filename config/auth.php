@@ -72,7 +72,7 @@ return [
 
         'adminhub' => [
             'driver' => 'eloquent',
-            'model' =>App\Models\AdminHub\AdminHubUser::class,
+            'model' =>App\Models\AdminHub\User::class,
         ],
 
         // 'users' => [
