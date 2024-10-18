@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminHub\V1\ProfileUpdateRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -30,6 +31,8 @@ class ProfileController extends Controller
         $user->update($input->except('avatar', 'current_password', 'password'));
 
         if ($input->has('avatar')) {
+            Storage::disk('adminhub')->delete($user->avatar);
+
             $user->update([
                 'avatar' => $input->avatar->store('avatars', 'adminhub'),
             ]);
