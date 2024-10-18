@@ -23,6 +23,7 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
         Route::get('admin/logout', [AdminHub\V1\AuthController::class, 'logout']);
 
         Route::middleware('verified')->group(function () {
+            Route::apiSingleton('admin/profile', AdminHub\V1\ProfileController::class);
         });
     });
 });

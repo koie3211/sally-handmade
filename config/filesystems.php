@@ -45,6 +45,14 @@ return [
             'throw' => false,
         ],
 
+        'adminhub' => [
+            'driver' => 'local',
+            'root' => public_path('adminhub'),
+            'url' => env('APP_URL').'/adminhub',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         'music' => [
             'driver' => 'local',
             'root' => public_path('music/uploads/music'),
