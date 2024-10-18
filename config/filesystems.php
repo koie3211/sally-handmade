@@ -47,8 +47,8 @@ return [
 
         'adminhub' => [
             'driver' => 'local',
-            'root' => public_path('adminhub'),
-            'url' => env('APP_URL').'/adminhub',
+            'root' => public_path('adminhub/uploads'),
+            'url' => env('APP_URL').'/adminhub/uploads',
             'visibility' => 'public',
             'throw' => false,
         ],

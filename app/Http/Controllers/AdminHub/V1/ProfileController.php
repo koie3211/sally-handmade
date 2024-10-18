@@ -31,7 +31,7 @@ class ProfileController extends Controller
 
         if ($input->has('avatar')) {
             $user->update([
-                'avatar' => $input->avatar->store('adminhub/avatars', 'adminhub'),
+                'avatar' => $input->avatar->store('avatars', 'adminhub'),
             ]);
         }
 
@@ -43,7 +43,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'name' => $user->name,
-            'avatar' => $user->avatar ? asset("uploads/adminhub/users/{$user->avatar}") : null,
+            'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
         ]);

@@ -17,7 +17,7 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:16'],
-            'avatar' => ['nullable', 'image', 'max:2mb'],
+            'avatar' => ['nullable', 'image', 'max:2048'],
             'current_password' => ['nullable', 'current_password:adminhub'],
             'password' => ['required_with:current_password', 'string', 'confirmed'],
         ];
