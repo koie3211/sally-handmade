@@ -31,7 +31,9 @@ class ProfileController extends Controller
         $user->update($input->except('avatar', 'current_password', 'password'));
 
         if ($input->has('avatar')) {
-            Storage::disk('adminhub')->delete($user->avatar);
+            if ($user->avatar) {
+                Storage::disk('adminhub')->delete($user->avatar);
+            }
 
             $user->update([
                 'avatar' => $input->avatar->store('avatars', 'adminhub'),
