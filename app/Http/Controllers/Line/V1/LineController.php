@@ -112,14 +112,14 @@ class LineController extends Controller
                     $sfo = $messagingBlobApi->getMessageContent($contentId);
 
                     $imageName = str()->ulid() . '.webp';
-                    Image::read($sfo->fread($sfo->getSize()))->scaleDown(1200)->toWebp()->save("lineimg/{$imageName}");
+                    Image::read($sfo->fread($sfo->getSize()))->scaleDown(1200)->toWebp()->save("line/uploads/img/{$imageName}");
 
                     $messagingApi->replyMessage(new ReplyMessageRequest([
                         'replyToken' => $event->getReplyToken(),
                         'messages' => [
                             new TextMessage([
                                 'type' => 'text',
-                                'text' => asset("lineimg/{$imageName}"),
+                                'text' => asset("line/uploads/img/{$imageName}"),
                             ]),
                         ],
                     ]));
