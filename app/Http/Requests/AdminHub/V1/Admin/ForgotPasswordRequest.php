@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\AdminHub\V1;
+namespace App\Http\Requests\AdminHub\V1\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResetPasswordRequest extends FormRequest
+class ForgotPasswordRequest extends FormRequest
 {
     protected $stopOnFirstFailure = true;
 
@@ -16,9 +16,7 @@ class ResetPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token' => ['required'],
-            'email' => ['required', 'email:rfc,dns'],
-            'password' => ['required', 'string', 'confirmed'],
+            'email' => ['required', 'email:rfc,dns', 'max:100'],
         ];
     }
 
@@ -26,7 +24,6 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'email' => 'Email',
-            'password' => '密碼',
         ];
     }
 }

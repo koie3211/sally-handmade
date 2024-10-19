@@ -11,19 +11,19 @@ Route::domain('line.sally-handmade.com')->group(function () {
 
 Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function () {
     Route::middleware('guest:adminhub')->group(function () {
-        Route::post('admin/login', [AdminHub\V1\AuthController::class, 'login']);
-        Route::post('admin/register', [AdminHub\V1\AuthController::class, 'register']);
-        Route::post('admin/forgot-password', [AdminHub\V1\AuthController::class, 'forgotPassword'])->name('password.email');
-        Route::post('admin/reset-password', [AdminHub\V1\AuthController::class, 'resetPassword'])->name('password.update');
+        Route::post('admin/login', [AdminHub\V1\Admin\AuthController::class, 'login']);
+        Route::post('admin/register', [AdminHub\V1\Admin\AuthController::class, 'register']);
+        Route::post('admin/forgot-password', [AdminHub\V1\Admin\AuthController::class, 'forgotPassword'])->name('password.email');
+        Route::post('admin/reset-password', [AdminHub\V1\Admin\AuthController::class, 'resetPassword'])->name('password.update');
     });
 
     Route::middleware('auth:adminhub')->group(function () {
-        Route::post('admin/email/verification-notification', [AdminHub\V1\AuthController::class, 'resend'])->middleware(['auth:adminhub', 'throttle:6,1'])->name('verification.send');
-        Route::get('admin/user', [AdminHub\V1\AuthController::class, 'user']);
-        Route::get('admin/logout', [AdminHub\V1\AuthController::class, 'logout']);
+        Route::post('admin/email/verification-notification', [AdminHub\V1\Admin\AuthController::class, 'resend'])->middleware(['auth:adminhub', 'throttle:6,1'])->name('verification.send');
+        Route::get('admin/user', [AdminHub\V1\Admin\AuthController::class, 'user']);
+        Route::get('admin/logout', [AdminHub\V1\Admin\AuthController::class, 'logout']);
 
         Route::middleware('verified')->group(function () {
-            Route::apiSingleton('admin/profile', AdminHub\V1\ProfileController::class);
+            Route::apiSingleton('admin/profile', AdminHub\V1\Admin\ProfileController::class);
         });
     });
 });

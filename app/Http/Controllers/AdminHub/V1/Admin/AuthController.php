@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\AdminHub\V1;
+namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AdminHub\V1\ForgotPasswordRequest;
-use App\Http\Requests\AdminHub\V1\LoginRequest;
-use App\Http\Requests\AdminHub\V1\RegisterRequest;
-use App\Http\Requests\AdminHub\V1\ResetPasswordRequest;
+use App\Http\Requests\AdminHub\V1\Admin\ForgotPasswordRequest;
+use App\Http\Requests\AdminHub\V1\Admin\LoginRequest;
+use App\Http\Requests\AdminHub\V1\Admin\RegisterRequest;
+use App\Http\Requests\AdminHub\V1\Admin\ResetPasswordRequest;
 use App\Models\AdminHub\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;

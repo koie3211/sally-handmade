@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\AdminHub\V1;
+namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AdminHub\V1\ProfileUpdateRequest;
+use App\Http\Requests\AdminHub\V1\Admin\ProfileUpdateRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
