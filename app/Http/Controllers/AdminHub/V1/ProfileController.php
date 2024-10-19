@@ -16,7 +16,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'name' => $user->name,
-            'avatar' => $user->avatar ? asset("uploads/adminhub/users/{$user->avatar}") : null,
+            'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
         ]);

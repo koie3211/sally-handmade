@@ -37,7 +37,7 @@ class AuthController extends Controller
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
-            'avatar' => $user->avatar ? asset("uploads/adminhub/users/{$user->avatar}") : null,
+            'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
@@ -59,7 +59,7 @@ class AuthController extends Controller
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
-            'avatar' => $user->avatar ? asset("uploads/adminhub/users/{$user->avatar}") : null,
+            'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
@@ -120,7 +120,7 @@ class AuthController extends Controller
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
-            'avatar' => $user->avatar ? asset("uploads/adminhub/users/{$user->avatar}") : null,
+            'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
