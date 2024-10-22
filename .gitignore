@@ -20,5 +20,7 @@ yarn-error.log
 /.vscode
 /.zed
 
+/database
+
 /resources/views/adminhub
 /public/music

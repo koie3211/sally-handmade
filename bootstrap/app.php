@@ -11,7 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
         api: __DIR__ . '/../routes/api.php',
-		apiPrefix: '',
+        apiPrefix: '',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
@@ -22,6 +22,14 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            $subdomain = explode('.', $request->getHost())[0];
+
+            // adminhub 後台 vue
+            if ($subdomain === 'adminhub' && $request->is('admin/*') && !$request->expectsJson()) {
+                return response()->view('adminhub.admin.index');
+            }
+
+            // music api 404
             if ($request->expectsJson() && $request->routeIs('music.*')) {
                 return response()->json([
                     'status' => false,
