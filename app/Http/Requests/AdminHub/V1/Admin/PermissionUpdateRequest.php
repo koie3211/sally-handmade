@@ -19,7 +19,10 @@ class PermissionUpdateRequest extends FormRequest
             'name' => ['required', 'string', 'max:16'],
             'resource' => ['required', 'max:16', 'alpha:ascii', "unique:admin_hub_permissions,resource,{$this->permission->id}"],
             'action' => ['required', 'array'],
-            'action.*' => ['distinct', 'in:create,read,update,delete'],
+            'action.create' => ['required', 'boolean'],
+            'action.read' => ['required', 'boolean'],
+            'action.update' => ['required', 'boolean'],
+            'action.delete' => ['required', 'boolean'],
         ];
     }
 
@@ -29,7 +32,10 @@ class PermissionUpdateRequest extends FormRequest
             'name' => '名稱',
             'resource' => '資源名稱',
             'action' => '動作',
-            'action.*' => '動作',
+            'action.create' => '新增',
+            'action.read' => '瀏覽',
+            'action.update' => '編輯',
+            'action.delete' => '刪除',
         ];
     }
 }

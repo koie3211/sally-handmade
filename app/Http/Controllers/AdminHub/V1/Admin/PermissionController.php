@@ -17,10 +17,10 @@ class PermissionController extends Controller
                 ->transform(fn ($permission) => [
                     'id' => $permission->id,
                     'name' => $permission->name,
-                    'can_create' => in_array('create', $permission->action),
-                    'can_read' => in_array('read', $permission->action),
-                    'can_update' => in_array('update', $permission->action),
-                    'can_delete' => in_array('delete', $permission->action),
+                    'can_create' => $permission->action['create'],
+                    'can_read' => $permission->action['read'],
+                    'can_update' => $permission->action['update'],
+                    'can_delete' => $permission->action['delete'],
                 ]),
         ]);
     }
