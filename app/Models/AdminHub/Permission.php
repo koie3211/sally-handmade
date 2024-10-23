@@ -21,7 +21,7 @@ class Permission extends Model
     protected function casts(): array
     {
         return [
-            'password' => 'array',
+            'action' => 'array',F
         ];
     }
 }
