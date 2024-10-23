@@ -17,7 +17,7 @@ class PermissionStoreRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:16'],
-            'resource' => ['required', 'max:16', 'alpha:ascii', 'unique:permissions,resource'],
+            'resource' => ['required', 'max:16', 'alpha:ascii', 'unique:admin_hub_permissions,resource'],
             'action' => ['required', 'array'],
             'action.*' => ['distinct', 'in:create,read,update,delete'],
         ];
