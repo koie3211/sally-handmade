@@ -22,7 +22,7 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function update(ProfileUpdateRequest $request)
+    public function update(ProfileUpdateRequest $request): JsonResponse
     {
         $input = $request->safe();
 

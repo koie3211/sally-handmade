@@ -14,7 +14,7 @@ class PermissionController extends Controller
     {
         return response()->json([
             'data' => Permission::query()
-                ->orderBy('order')->orderBy('id')
+                ->orderBy('sort')->orderBy('id')
                 ->get(['id', 'name']),
         ]);
     }

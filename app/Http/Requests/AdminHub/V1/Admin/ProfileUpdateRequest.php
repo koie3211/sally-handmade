@@ -28,8 +28,8 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => '姓名',
             'avatar' => '頭像',
-            'current_password' => '當前密碼',
-            'password' => '密碼',
+            'current_password' => '舊密碼',
+            'password' => '新密碼',
         ];
     }
 }
