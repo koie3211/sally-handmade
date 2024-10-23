@@ -13,9 +13,15 @@ class PermissionController extends Controller
     public function index(): JsonResponse
     {
         return response()->json([
-            'data' => Permission::query()
-                ->orderBy('sort')->orderBy('id')
-                ->get(['id', 'name']),
+            'data' => Permission::orderBy('sort')->orderBy('id')->get(['id', 'name', 'action'])
+                ->transform(fn ($permission) => [
+                    'id' => $permission->id,
+                    'name' => $permission->name,
+                    'can_create' => in_array('create', $permission->action),
+                    'can_read' => in_array('read', $permission->action),
+                    'can_update' => in_array('update', $permission->action),
+                    'can_delete' => in_array('delete', $permission->action),
+                ]),
         ]);
     }
 
@@ -26,18 +32,22 @@ class PermissionController extends Controller
         $permission = Permission::create($input);
 
         return response()->json([
-            'id' => $permission->id,
-            'name' => $permission->name,
+            'data' => [
+                'id' => $permission->id,
+                'name' => $permission->name,
+            ],
         ], 201);
     }
 
     public function show(Permission $permission): JsonResponse
     {
         return response()->json([
-            'id' => $permission->id,
-            'name' => $permission->name,
-            'resource' => $permission->resource,
-            'action' => $permission->action,
+            'data' => [
+                'id' => $permission->id,
+                'name' => $permission->name,
+                'resource' => $permission->resource,
+                'action' => $permission->action,
+            ],
         ]);
     }
 
@@ -50,8 +60,10 @@ class PermissionController extends Controller
         // TODO: 處理角色權限
 
         return response()->json([
-            'id' => $permission->id,
-            'name' => $permission->name,
+            'data' => [
+                'id' => $permission->id,
+                'name' => $permission->name,
+            ],
         ]);
     }
 
