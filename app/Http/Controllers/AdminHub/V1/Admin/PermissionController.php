@@ -17,6 +17,7 @@ class PermissionController extends Controller
                 ->transform(fn ($permission) => [
                     'id' => $permission->id,
                     'name' => $permission->name,
+                    'resource' => $permission->resource,
                     'can_create' => $permission->action['create'],
                     'can_read' => $permission->action['read'],
                     'can_update' => $permission->action['update'],
@@ -35,6 +36,11 @@ class PermissionController extends Controller
             'data' => [
                 'id' => $permission->id,
                 'name' => $permission->name,
+                'resource' => $permission->resource,
+                'can_create' => $permission->action['create'],
+                'can_read' => $permission->action['read'],
+                'can_update' => $permission->action['update'],
+                'can_delete' => $permission->action['delete'],
             ],
         ], 201);
     }
@@ -63,6 +69,11 @@ class PermissionController extends Controller
             'data' => [
                 'id' => $permission->id,
                 'name' => $permission->name,
+                'resource' => $permission->resource,
+                'can_create' => $permission->action['create'],
+                'can_read' => $permission->action['read'],
+                'can_update' => $permission->action['update'],
+                'can_delete' => $permission->action['delete'],
             ],
         ]);
     }
