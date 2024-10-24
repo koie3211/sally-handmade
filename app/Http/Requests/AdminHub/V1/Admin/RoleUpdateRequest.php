@@ -18,7 +18,7 @@ class RoleUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:16'],
             'permissions' => ['required', 'array'],
-            'permissions.*' => ['distinct', 'exists:admin_hub_permissions,id'],
+            // 'permissions.*' => ['distinct', 'exists:admin_hub_permissions,id'],
             'permissions.*.create' => ['nullable', 'boolean'],
             'permissions.*.read' => ['nullable', 'boolean'],
             'permissions.*.update' => ['nullable', 'boolean'],

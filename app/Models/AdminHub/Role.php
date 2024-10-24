@@ -19,6 +19,6 @@ class Role extends Model
 
     public function permissions(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class)->using(PermissionRole::class);
+        return $this->belongsToMany(Permission::class, 'admin_hub_permission_role')->using(PermissionRole::class);
     }
 }
