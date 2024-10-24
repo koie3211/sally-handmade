@@ -66,7 +66,7 @@ class RoleController extends Controller
             'data' => [
                 'id' => $role->id,
                 'name' => $role->name,
-                'permissions' => $role->permissions->pluck('pivot.actions', 'id'),
+                'permissions' => $role->permissions->pluck('pivot.action', 'id'),
             ],
         ]);
     }

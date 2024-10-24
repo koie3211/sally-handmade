@@ -12,6 +12,8 @@ class Role extends Model
 
     protected $table = 'admin_hub_roles';
 
+    protected $touches = ['permissions'];
+
     protected $fillable = [
         'name',
         'sort',
@@ -19,6 +21,6 @@ class Role extends Model
 
     public function permissions(): BelongsToMany
     {
-        return $this->belongsToMany(Permission::class, 'admin_hub_permission_role')->using(PermissionRole::class);
+        return $this->belongsToMany(Permission::class, 'admin_hub_permission_role')->using(PermissionRole::class)->withPivot('action');
     }
 }
