@@ -27,6 +27,7 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
                 Route::apiSingleton('profile', AdminHub\V1\Admin\ProfileController::class);
 
                 Route::apiResource('permissions', AdminHub\V1\Admin\PermissionController::class);
+                Route::resource('roles', AdminHub\V1\Admin\RoleController::class);
             });
         });
     });
