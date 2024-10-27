@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminHub\V1\Admin\RoleSortRequest;
 use App\Http\Requests\AdminHub\V1\Admin\RoleStoreRequest;
 use App\Http\Requests\AdminHub\V1\Admin\RoleUpdateRequest;
 use App\Models\AdminHub\Permission;
@@ -99,6 +100,19 @@ class RoleController extends Controller
         $role->permissions()->detach();
 
         $role->delete();
+
+        return response()->json(null, 204);
+    }
+
+    public function sort(RoleSortRequest $request): JsonResponse
+    {
+        $input = $request->validated();
+
+        foreach ($input->ids as $key => $id) {
+            Role::where('id', $id)->update([
+                'sort' => $key,
+            ]);
+        }
 
         return response()->json(null, 204);
     }

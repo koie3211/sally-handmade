@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminHub\V1\Admin\PermissionSortRequest;
 use App\Http\Requests\AdminHub\V1\Admin\PermissionStoreRequest;
 use App\Http\Requests\AdminHub\V1\Admin\PermissionUpdateRequest;
 use App\Models\AdminHub\Permission;
@@ -83,6 +84,19 @@ class PermissionController extends Controller
         // TODO: 處理角色權限
 
         $permission->delete();
+
+        return response()->json(null, 204);
+    }
+
+    public function sort(PermissionSortRequest $request): JsonResponse
+    {
+        $input = $request->validated();
+
+        foreach ($input->ids as $key => $id) {
+            Permission::where('id', $id)->update([
+                'sort' => $key,
+            ]);
+        }
 
         return response()->json(null, 204);
     }
