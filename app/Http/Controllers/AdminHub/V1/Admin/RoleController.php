@@ -108,7 +108,7 @@ class RoleController extends Controller
     {
         $input = $request->validated();
 
-        foreach ($input->ids as $key => $id) {
+        foreach ($input['ids'] as $key => $id) {
             Role::where('id', $id)->update([
                 'sort' => $key,
             ]);

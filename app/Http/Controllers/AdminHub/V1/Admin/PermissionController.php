@@ -92,7 +92,7 @@ class PermissionController extends Controller
     {
         $input = $request->validated();
 
-        foreach ($input->ids as $key => $id) {
+        foreach ($input['ids'] as $key => $id) {
             Permission::where('id', $id)->update([
                 'sort' => $key,
             ]);
