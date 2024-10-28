@@ -41,7 +41,7 @@ class UserGroupController extends Controller
     {
         return response()->json([
             'data' => [
-                'roles' => Role::orderBy('sort')->orderBy('id')->get(['id', 'name']),
+                'roles' => Role::orderBy('sort')->orderBy('id')->get(['id as value', 'name as label']),
                 'level' => 1, // TODO: 待改
             ],
         ]);
@@ -70,7 +70,7 @@ class UserGroupController extends Controller
     {
         return response()->json([
             'data' => [
-                'roles' => Role::orderBy('sort')->orderBy('id')->get(['id', 'name']),
+                'roles' => Role::orderBy('sort')->orderBy('id')->get(['id as value', 'name as label']),
                 'level' => 1, // TODO: 待改
             ],
         ]);
