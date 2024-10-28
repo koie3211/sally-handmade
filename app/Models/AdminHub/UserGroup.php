@@ -15,6 +15,7 @@ class UserGroup extends Model
     protected $fillable = [
         'name',
         'level',
+        'sort',
         'status',
     ];
 

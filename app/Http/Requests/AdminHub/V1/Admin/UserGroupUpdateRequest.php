@@ -18,6 +18,7 @@ class UserGroupUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:16'],
             'level' => ['required', 'integer', 'min:0', 'max:65000'],
+            'sort' => ['required', 'integer', 'min:0', 'max:65000'],
             'status' => ['required', 'boolean'],
             'roles' => ['required', 'array'],
             'roles.*' => ['distinct', 'exists:admin_hub_roles,id'],
@@ -29,6 +30,7 @@ class UserGroupUpdateRequest extends FormRequest
         return [
             'name' => '名稱',
             'level' => '等級',
+            'sort' => '排序',
             'status' => '狀態',
             'roles' => '授權',
             'roles.*' => '授權',
