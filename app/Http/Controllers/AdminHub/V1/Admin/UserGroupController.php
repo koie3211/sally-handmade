@@ -19,7 +19,7 @@ class UserGroupController extends Controller
         $keyword = $request->query('keyword');
 
         $rows = UserGroup::query()
-            ->when($keyword, fn ($query) => $query->where('name', 'like', $keyword))
+            ->when($keyword, fn ($query) => $query->where('name', 'like', "%{$keyword}%"))
             ->paginate($length);
 
         return response()->json([
