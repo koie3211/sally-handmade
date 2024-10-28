@@ -31,6 +31,8 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
 
                 Route::put('roles/sort', [AdminHub\V1\Admin\RoleController::class, 'sort']);
                 Route::resource('roles', AdminHub\V1\Admin\RoleController::class);
+
+                Route::resource('user-groups', AdminHub\V1\Admin\UserGroupController::class);
             });
         });
     });
