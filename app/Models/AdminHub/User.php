@@ -24,11 +24,14 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
+        'user_group_id',
         'name',
         'avatar',
         'email',
         'account',
         'password',
+        'status',
+        'last_login_at',
     ];
 
     /**
@@ -49,8 +52,10 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status' => 'boolean',
+            'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
         ];
     }
 }
