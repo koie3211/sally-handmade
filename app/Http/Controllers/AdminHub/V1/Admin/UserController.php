@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AdminHub\V1\Admin\UserGroupUpdateRequest;
 use App\Http\Requests\AdminHub\V1\Admin\UserStoreRequest;
+use App\Http\Requests\AdminHub\V1\Admin\UserUpdateRequest;
 use App\Models\AdminHub\User;
 use App\Models\AdminHub\UserGroup;
 use Illuminate\Http\JsonResponse;
@@ -107,7 +107,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(UserGroupUpdateRequest $request, User $user): JsonResponse
+    public function update(UserUpdateRequest $request, User $user): JsonResponse
     {
         $input = $request->safe();
 
