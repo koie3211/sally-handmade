@@ -45,7 +45,7 @@ class AuthController extends Controller
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
-            'is_password_changed' => (bool) $user->passwordLogs_count,
+            'is_password_changed' => (bool) $user->password_logs_count,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
         ]);
     }
@@ -76,7 +76,7 @@ class AuthController extends Controller
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
-            'is_password_changed' => (bool) $user->passwordLogs_count,
+            'is_password_changed' => (bool) $user->password_logs_count,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
         ]);
     }
@@ -138,7 +138,7 @@ class AuthController extends Controller
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
-            'is_password_changed' => (bool) $user->passwordLogs_count,
+            'is_password_changed' => (bool) $user->password_logs_count,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
         ]);
     }
