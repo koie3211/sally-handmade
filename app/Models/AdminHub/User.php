@@ -68,6 +68,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function passwordLogs(): HasMany
     {
-        return $this->hasMany(UserGroup::class);
+        return $this->hasMany(PasswordLog::class);
     }
 }
