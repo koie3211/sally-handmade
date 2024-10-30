@@ -4,6 +4,7 @@ namespace App\Models\AdminHub;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Permission extends Model
 {
@@ -23,5 +24,10 @@ class Permission extends Model
         return [
             'action' => 'array',
         ];
+    }
+
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'admin_hub_permission_role')->using(PermissionRole::class)->withPivot('action');
     }
 }

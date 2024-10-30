@@ -64,7 +64,20 @@ class PermissionController extends Controller
 
         $permission->update($input);
 
-        // TODO: 處理角色權限
+        foreach ($input['action'] as $key => $value) {
+            if ($value) {
+                continue;
+            }
+
+            $permission->roles->each(function ($role) use ($key, $permission) {
+                $roleAction = $role->pivot->action;
+                unset($roleAction[$key]);
+
+                $permission->roles()->updateExistingPivot($role->id, [
+                    'action' => $roleAction,
+                ]);
+            });
+        }
 
         return response()->json([
             'data' => [
@@ -81,7 +94,7 @@ class PermissionController extends Controller
 
     public function destroy(Permission $permission): JsonResponse
     {
-        // TODO: 處理角色權限
+        $permission->roles()->detach();
 
         $permission->delete();
 
