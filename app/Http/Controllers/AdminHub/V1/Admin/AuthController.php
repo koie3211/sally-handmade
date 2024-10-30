@@ -35,7 +35,7 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        $user = auth('adminhub')->user();
+        $user = auth('adminhub')->user()->loadCount('passwordLogs');
 
         $user->update(['last_login_at' => now()]);
 
@@ -45,6 +45,7 @@ class AuthController extends Controller
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
+            'is_password_changed' => (bool) $user->passwordLogs_count,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
         ]);
     }
@@ -67,12 +68,15 @@ class AuthController extends Controller
 
         $user->update(['last_login_at' => now()]);
 
+        $user->loadCount('passwordLogs');
+
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
+            'is_password_changed' => (bool) $user->passwordLogs_count,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
         ]);
     }
@@ -126,7 +130,7 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $user = $request->user()->loadCount('passwordLogs');
 
         return response()->json([
             'id' => $user->id,
@@ -134,6 +138,7 @@ class AuthController extends Controller
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
             'account' => $user->account,
+            'is_password_changed' => (bool) $user->passwordLogs_count,
             'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
         ]);
     }
