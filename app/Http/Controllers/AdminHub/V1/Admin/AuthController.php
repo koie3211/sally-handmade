@@ -59,9 +59,13 @@ class AuthController extends Controller
 
         event(new Registered($user));
 
+        event(new PasswordReset($user));
+
         auth('adminhub')->login($user);
 
         $request->session()->regenerate();
+
+        $user->update(['last_login_at' => now()]);
 
         return response()->json([
             'id' => $user->id,

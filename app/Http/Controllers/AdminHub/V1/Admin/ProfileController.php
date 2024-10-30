@@ -4,6 +4,7 @@ namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminHub\V1\Admin\ProfileUpdateRequest;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -44,6 +45,8 @@ class ProfileController extends Controller
             $user->update([
                 'password' => $input->password,
             ]);
+
+            event(new PasswordReset($user));
         }
 
         return response()->json([
