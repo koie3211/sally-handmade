@@ -8,6 +8,7 @@ use App\Http\Requests\AdminHub\V1\Admin\LoginRequest;
 use App\Http\Requests\AdminHub\V1\Admin\RegisterRequest;
 use App\Http\Requests\AdminHub\V1\Admin\ResetPasswordRequest;
 use App\Models\AdminHub\User;
+use App\Models\AdminHub\UserGroup;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -26,6 +27,8 @@ class AuthController extends Controller
         $auth = auth('adminhub')->attempt([
             'account' => $input->account,
             'password' => $input->password,
+            'status' => true,
+            fn ($query) => $query->whereRelation('userGroup', 'status', true),
         ], $input->remember ?? false);
 
         abort_if(!$auth, 400, '帳密錯誤');
@@ -33,6 +36,8 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         $user = auth('adminhub')->user();
+
+        $user->update(['last_login_at' => now()]);
 
         return response()->json([
             'id' => $user->id,
@@ -48,7 +53,9 @@ class AuthController extends Controller
     {
         $input = $request->validated();
 
-        $user = User::create($input);
+        $userGroup = UserGroup::where('is_default', true)->where('status', true)->firstOrFail();
+
+        $user = User::create([...$input, 'user_group_id' => $userGroup->id]);
 
         event(new Registered($user));
 
@@ -70,7 +77,7 @@ class AuthController extends Controller
     {
         $request->fulfill();
 
-        return redirect('/admin');
+        return redirect()->to('admin');
     }
 
     public function resend(Request $request)
