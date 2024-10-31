@@ -84,7 +84,7 @@ class UserGroupController extends Controller
     {
         $currUserGroup = $request->user()->userGroup;
 
-        abort_if($userGroup->level <= $currUserGroup && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
+        abort_if($userGroup->level <= $currUserGroup->level && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
 
         return response()->json([
             'data' => [
@@ -98,7 +98,7 @@ class UserGroupController extends Controller
     {
         $currUserGroup = $request->user()->userGroup;
 
-        abort_if($userGroup->level <= $currUserGroup && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
+        abort_if($userGroup->level <= $currUserGroup->level && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
 
         return response()->json([
             'data' => [
@@ -116,7 +116,7 @@ class UserGroupController extends Controller
     {
         $currUserGroup = $request->user()->userGroup;
 
-        abort_if($userGroup->level <= $currUserGroup && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
+        abort_if($userGroup->level <= $currUserGroup->level && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
 
         $input = $request->safe();
 
@@ -140,7 +140,7 @@ class UserGroupController extends Controller
     {
         $currUserGroup = $request->user()->userGroup;
 
-        abort_if($userGroup->level <= $currUserGroup && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
+        abort_if($userGroup->level <= $currUserGroup->level && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
 
         abort_if($userGroup->is_default, 400, '禁止刪除預設群組');
 
