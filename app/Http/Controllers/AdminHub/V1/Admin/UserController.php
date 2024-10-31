@@ -29,8 +29,7 @@ class UserController extends Controller
             ->when($keyword, fn ($query) => $query->where('account', 'like', "%{$keyword}%")
                 ->orWhere('name', 'like', "%{$keyword}%")->orWhere('email', 'like', "%{$keyword}%")
                 ->orWhereRelation('userGroup', 'like', "%{$keyword}%"))
-            ->orderByRaw("`id`='{$currUser->id}' DESC")
-            ->orderBy('sort')->orderBy('id')
+            ->orderByRaw("`id`='{$currUser->id}' DESC")->orderBy('id')
             ->paginate($length);
 
         // TODO: 增加判斷參數
