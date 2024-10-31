@@ -23,4 +23,9 @@ class Role extends Model
     {
         return $this->belongsToMany(Permission::class, 'admin_hub_permission_role')->using(PermissionRole::class)->withPivot('action');
     }
+
+    public function userGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(UserGroup::class, 'admin_hub_role_user_group')->using(RoleUserGroup::class);
+    }
 }

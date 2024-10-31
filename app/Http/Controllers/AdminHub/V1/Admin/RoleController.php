@@ -95,9 +95,9 @@ class RoleController extends Controller
 
     public function destroy(Role $role): JsonResponse
     {
-        // TODO: 處理群組權限
-
         $role->permissions()->detach();
+
+        $role->userGroups()->detach();
 
         $role->delete();
 
