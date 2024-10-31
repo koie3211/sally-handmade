@@ -14,14 +14,21 @@ class UserGroupController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $currUserGroup = $request->user()->userGroup;
+
         $length = $request->integer('length', 35);
 
         $keyword = $request->query('keyword');
 
         $rows = UserGroup::query()
+            ->where(fn ($query) => $query->where('id', $currUserGroup->id)
+                ->orWhere('level', '>', $currUserGroup->level))
             ->when($keyword, fn ($query) => $query->where('name', 'like', "%{$keyword}%"))
+            ->orderByRaw("`id`='{$currUserGroup->id}' DESC")
+            ->orderBy('sort')->orderBy('id')
             ->paginate($length);
 
+        // TODO: 增加判斷參數
         return response()->json([
             'data' => [
                 'data' => $rows->map(fn ($row) => [
@@ -37,12 +44,14 @@ class UserGroupController extends Controller
         ]);
     }
 
-    public function create(): JsonResponse
+    public function create(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         return response()->json([
             'data' => [
                 'roles' => Role::orderBy('sort')->orderBy('id')->get(['id as value', 'name as label']),
-                'level' => 1, // TODO: 待改
+                'level' => $user->userGroup->level + 1,
             ],
         ]);
     }
@@ -50,6 +59,10 @@ class UserGroupController extends Controller
     public function store(UserGroupStoreRequest $request): JsonResponse
     {
         $input = $request->safe();
+
+        $user = $request->user();
+
+        abort_if($input->level <= $user->userGroup->level, 400, '等級設定錯誤，請重新設定');
 
         $userGroup = UserGroup::create($input->except('roles'));
 
@@ -67,18 +80,26 @@ class UserGroupController extends Controller
         ], 201);
     }
 
-    public function edit(UserGroup $userGroup): JsonResponse
+    public function edit(Request $request, UserGroup $userGroup): JsonResponse
     {
+        $currUserGroup = $request->user()->userGroup;
+
+        abort_if($userGroup->level <= $currUserGroup && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
+
         return response()->json([
             'data' => [
                 'roles' => Role::orderBy('sort')->orderBy('id')->get(['id as value', 'name as label']),
-                'level' => 1, // TODO: 待改
+                'level' => $currUserGroup->level + 1,
             ],
         ]);
     }
 
-    public function show(UserGroup $userGroup): JsonResponse
+    public function show(Request $request, UserGroup $userGroup): JsonResponse
     {
+        $currUserGroup = $request->user()->userGroup;
+
+        abort_if($userGroup->level <= $currUserGroup && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
+
         return response()->json([
             'data' => [
                 'id' => $userGroup->id,
@@ -93,9 +114,13 @@ class UserGroupController extends Controller
 
     public function update(UserGroupUpdateRequest $request, UserGroup $userGroup): JsonResponse
     {
+        $currUserGroup = $request->user()->userGroup;
+
+        abort_if($userGroup->level <= $currUserGroup && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
+
         $input = $request->safe();
 
-        $userGroup->update($input->except('roles'));
+        $userGroup->update($input->except($userGroup->id === $currUserGroup->id ? ['roles', 'status'] : 'roles'));
 
         $userGroup->roles()->sync($input->roles);
 
@@ -111,11 +136,19 @@ class UserGroupController extends Controller
         ]);
     }
 
-    public function destroy(UserGroup $userGroup): JsonResponse
+    public function destroy(Request $request, UserGroup $userGroup): JsonResponse
     {
-        // TODO: 處理帳戶
+        $currUserGroup = $request->user()->userGroup;
+
+        abort_if($userGroup->level <= $currUserGroup && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
+
+        abort_if($userGroup->is_default, 400, '禁止刪除預設群組');
+
+        abort_if($userGroup->id === $currUserGroup->id, 400, '禁止刪除自己的群組');
 
         $userGroup->roles()->detach();
+
+        $userGroup->users()->delete();
 
         $userGroup->delete();
 

@@ -19,7 +19,7 @@ class UserGroupUpdateRequest extends FormRequest
             'name' => ['required', 'string', 'max:16'],
             'level' => ['required', 'integer', 'min:0', 'max:65000'],
             'sort' => ['required', 'integer', 'min:0', 'max:65000'],
-            'status' => ['required', 'boolean'],
+            'status' => ['nullable', 'boolean'],
             'roles' => ['required', 'array'],
             'roles.*' => ['distinct', 'exists:admin_hub_roles,id'],
         ];
