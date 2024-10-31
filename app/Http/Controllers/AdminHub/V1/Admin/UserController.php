@@ -50,11 +50,13 @@ class UserController extends Controller
         ]);
     }
 
-    public function create(): JsonResponse
+    public function create(Request $request): JsonResponse
     {
+        $currUserGroup = $request->user()->userGroup;
+
         return response()->json([
             'data' => [
-                'user_groups' => UserGroup::where('status', true)
+                'user_groups' => UserGroup::where('level', '>', $currUserGroup->level)
                     ->orderBy('sort')->orderBy('id')->get(['id as value', 'name as label']),
             ],
         ]);
@@ -63,6 +65,12 @@ class UserController extends Controller
     public function store(UserStoreRequest $request): JsonResponse
     {
         $input = $request->safe();
+
+        $currUserGroup = $request->user()->userGroup;
+
+        $userGroup = UserGroup::findOrFail($input->user_group_id);
+
+        abort_if($userGroup->level <= $currUserGroup->level, 400, '群組權限錯誤，請重新設定');
 
         $password = Str::password(12);
 
@@ -100,7 +108,7 @@ class UserController extends Controller
 
         return response()->json([
             'data' => [
-                'user_groups' => UserGroup::where('id', $user->user_group_id)->orWhere('status', true)
+                'user_groups' => UserGroup::where('level', '>', $currUser->userGroup->level)
                     ->orderBy('sort')->orderBy('id')->get(['id as value', 'name as label']),
             ],
         ]);
@@ -131,6 +139,10 @@ class UserController extends Controller
         abort_if($user->userGroup->level <= $currUser->userGroup->level && $user->id !== $currUser->id, 403, '權限不足');
 
         $input = $request->safe();
+
+        $userGroup = UserGroup::findOrFail($input->user_group_id);
+
+        abort_if($userGroup->level <= $currUser->userGroup->level, 400, '群組權限錯誤，請重新設定');
 
         $user->update($input->except($user->id === $currUser->id ? ['avatar', 'status'] : 'avatar'));
 
