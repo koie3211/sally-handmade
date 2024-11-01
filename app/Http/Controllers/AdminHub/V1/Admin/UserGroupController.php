@@ -89,7 +89,9 @@ class UserGroupController extends Controller
         return response()->json([
             'data' => [
                 'roles' => Role::orderBy('sort')->orderBy('id')->get(['id as value', 'name as label']),
-                'level' => $currUserGroup->level + 1,
+                'level' => $userGroup->id === $currUserGroup->id
+                    ? $currUserGroup->level
+                    : $currUserGroup->level + 1,
             ],
         ]);
     }
@@ -120,7 +122,7 @@ class UserGroupController extends Controller
 
         $input = $request->safe();
 
-        $userGroup->update($input->except($userGroup->id === $currUserGroup->id ? ['roles', 'status'] : 'roles'));
+        $userGroup->update($input->except($userGroup->id === $currUserGroup->id ? ['roles', 'level', 'status'] : 'roles'));
 
         $userGroup->roles()->sync($input->roles);
 

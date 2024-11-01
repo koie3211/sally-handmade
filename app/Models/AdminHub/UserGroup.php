@@ -13,6 +13,8 @@ class UserGroup extends Model
 
     protected $table = 'admin_hub_user_groups';
 
+    protected $touches = ['roles'];
+
     protected $fillable = [
         'name',
         'level',
