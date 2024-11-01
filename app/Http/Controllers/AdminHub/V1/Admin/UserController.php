@@ -7,7 +7,7 @@ use App\Http\Requests\AdminHub\V1\Admin\UserStoreRequest;
 use App\Http\Requests\AdminHub\V1\Admin\UserUpdateRequest;
 use App\Models\AdminHub\User;
 use App\Models\AdminHub\UserGroup;
-use Illuminate\Auth\Events\Registered;
+use App\Notifications\AdminHubUserRegistered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -84,7 +84,7 @@ class UserController extends Controller
             ]);
         }
 
-        event(new Registered($user));
+        $user->notify(new AdminHubUserRegistered($password));
 
         return response()->json([
             'data' => [

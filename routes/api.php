@@ -27,14 +27,14 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
                 Route::apiSingleton('profile', AdminHub\V1\Admin\ProfileController::class);
 
                 Route::put('permissions/sort', [AdminHub\V1\Admin\PermissionController::class, 'sort']);
-                Route::apiResource('permissions', AdminHub\V1\Admin\PermissionController::class);
+                Route::apiResource('permissions', AdminHub\V1\Admin\PermissionController::class)->whereNumber('permission');
 
                 Route::put('roles/sort', [AdminHub\V1\Admin\RoleController::class, 'sort']);
-                Route::resource('roles', AdminHub\V1\Admin\RoleController::class);
+                Route::resource('roles', AdminHub\V1\Admin\RoleController::class)->whereNumber('role');
 
-                Route::resource('user-groups', AdminHub\V1\Admin\UserGroupController::class);
+                Route::resource('user-groups', AdminHub\V1\Admin\UserGroupController::class)->whereNumber('user_group');
 
-                Route::resource('users', AdminHub\V1\Admin\UserController::class);
+                Route::resource('users', AdminHub\V1\Admin\UserController::class)->whereUlid('user');
             });
         });
     });
