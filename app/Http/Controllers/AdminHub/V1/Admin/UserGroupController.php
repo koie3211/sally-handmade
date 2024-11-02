@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminHub\V1\Admin\StatusRequest;
 use App\Http\Requests\AdminHub\V1\Admin\UserGroupStoreRequest;
 use App\Http\Requests\AdminHub\V1\Admin\UserGroupUpdateRequest;
 use App\Models\AdminHub\Role;
@@ -153,6 +154,17 @@ class UserGroupController extends Controller
         $userGroup->users()->delete();
 
         $userGroup->delete();
+
+        return response()->json(null, 204);
+    }
+
+    public function status(StatusRequest $request, UserGroup $userGroup): JsonResponse
+    {
+        $input = $request->safe();
+
+        $userGroup->update([
+            'status' => $input->status,
+        ]);
 
         return response()->json(null, 204);
     }

@@ -32,8 +32,10 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
                 Route::put('roles/sort', [AdminHub\V1\Admin\RoleController::class, 'sort']);
                 Route::resource('roles', AdminHub\V1\Admin\RoleController::class)->whereNumber('role');
 
+                Route::put('user-groups/{user_group}/status', [AdminHub\V1\Admin\UserGroupController::class, 'status'])->whereNumber('user_group');
                 Route::resource('user-groups', AdminHub\V1\Admin\UserGroupController::class)->whereNumber('user_group');
 
+                Route::put('users/{user}/status', [AdminHub\V1\Admin\UserController::class, 'status'])->whereUlid('user');
                 Route::resource('users', AdminHub\V1\Admin\UserController::class)->whereUlid('user');
             });
         });

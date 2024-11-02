@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminHub\V1\Admin\StatusRequest;
 use App\Http\Requests\AdminHub\V1\Admin\UserStoreRequest;
 use App\Http\Requests\AdminHub\V1\Admin\UserUpdateRequest;
 use App\Models\AdminHub\User;
@@ -179,6 +180,17 @@ class UserController extends Controller
         }
 
         $user->delete();
+
+        return response()->json(null, 204);
+    }
+
+    public function status(StatusRequest $request, User $user): JsonResponse
+    {
+        $input = $request->safe();
+
+        $user->update([
+            'status' => $input->status,
+        ]);
 
         return response()->json(null, 204);
     }
