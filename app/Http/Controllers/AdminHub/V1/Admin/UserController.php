@@ -28,7 +28,7 @@ class UserController extends Controller
                 ->orWhereRelation('userGroup', 'level', '>', $currUser->userGroup->level))
             ->when($keyword, fn ($query) => $query->where('account', 'like', "%{$keyword}%")
                 ->orWhere('name', 'like', "%{$keyword}%")->orWhere('email', 'like', "%{$keyword}%")
-                ->orWhereRelation('userGroup', 'like', "%{$keyword}%"))
+                ->orWhereRelation('userGroup', 'name', 'like', "%{$keyword}%"))
             ->orderByRaw("`id`='{$currUser->id}' DESC")->orderBy('id')
             ->paginate($length);
 
@@ -83,6 +83,8 @@ class UserController extends Controller
                 'avatar' => $input->avatar->store('avatars', 'adminhub'),
             ]);
         }
+
+        $user->markEmailAsVerified();
 
         $user->notify(new AdminHubUserRegistered($password));
 

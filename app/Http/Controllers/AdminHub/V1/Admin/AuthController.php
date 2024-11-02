@@ -46,7 +46,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'account' => $user->account,
             'is_password_changed' => (bool) $user->password_logs_count,
-            'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
+            'is_email_verified' => (bool) $user->email_verified_at,
         ]);
     }
 
@@ -77,7 +77,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'account' => $user->account,
             'is_password_changed' => (bool) $user->password_logs_count,
-            'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
+            'is_email_verified' => (bool) $user->email_verified_at,
         ]);
     }
 
@@ -139,7 +139,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'account' => $user->account,
             'is_password_changed' => (bool) $user->password_logs_count,
-            'email_verified_at' => $user->email_verified_at?->toDateTimeString(),
+            'is_email_verified' => (bool) $user->email_verified_at,
         ]);
     }
 

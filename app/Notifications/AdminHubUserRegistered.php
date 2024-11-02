@@ -38,6 +38,6 @@ class AdminHubUserRegistered extends Notification
             ->line("感謝您的註冊，您的登入臨時密碼為：{$this->password}")
             ->line('請由以下網址登入並立即修改您的密碼。')
             ->action('登入', url('admin/login'))
-            ->line('如果您未要求重設密碼，請忽略此郵件。');
+            ->line('如果您未要求建立帳戶，請忽略此郵件。');
     }
 }
