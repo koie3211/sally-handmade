@@ -35,12 +35,14 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        $user = auth('adminhub')->user()->loadCount('passwordLogs');
+        $user = auth('adminhub')->user()
+            ->load('userGroup')->loadCount('passwordLogs');
 
         $user->update(['last_login_at' => now()]);
 
         return response()->json([
             'id' => $user->id,
+            'user_group' => $user->userGroup->name,
             'name' => $user->name,
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
@@ -68,10 +70,11 @@ class AuthController extends Controller
 
         $user->update(['last_login_at' => now()]);
 
-        $user->loadCount('passwordLogs');
+        $user->load('userGroup')->loadCount('passwordLogs');
 
         return response()->json([
             'id' => $user->id,
+            'user_group' => $user->userGroup->name,
             'name' => $user->name,
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
@@ -130,10 +133,11 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
-        $user = $request->user()->loadCount('passwordLogs');
+        $user = $request->user()->load('userGroup')->loadCount('passwordLogs');
 
         return response()->json([
             'id' => $user->id,
+            'user_group' => $user->userGroup->name,
             'name' => $user->name,
             'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
             'email' => $user->email,
