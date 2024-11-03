@@ -126,6 +126,7 @@ class UserController extends Controller
         return response()->json([
             'data' => [
                 'id' => $user->id,
+                'user_group_id' => $user->user_group_id,
                 'name' => $user->name,
                 'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
                 'account' => $user->account,
