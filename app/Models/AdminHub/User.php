@@ -70,4 +70,30 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(PasswordLog::class);
     }
+
+    public function permissions(): array
+    {
+        $rolePermissions = $this->userGroup->roles
+            ->map(fn ($role) => $role->permissions->pluck('pivot.action', 'resource'));
+
+        $permissions = [];
+
+        foreach ($rolePermissions as $permission) {
+            foreach ($permission as $resource => $actions) {
+                if (!isset($permissions[$resource])) {
+                    $permissions[$resource] = $actions;
+                } else {
+                    foreach ($actions as $action => $value) {
+                        if (!isset($permissions[$resource][$action])) {
+                            $permissions[$resource][$action] = $value;
+                        } else {
+                            $permissions[$resource][$action] = $permissions[$resource][$action] || $value;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $permissions;
+    }
 }

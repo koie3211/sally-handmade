@@ -36,7 +36,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         $user = auth('adminhub')->user()
-            ->load('userGroup')->loadCount('passwordLogs');
+            ->load('userGroup.roles.permissions')->loadCount('passwordLogs');
 
         $user->update(['last_login_at' => now()]);
 
@@ -49,6 +49,7 @@ class AuthController extends Controller
             'account' => $user->account,
             'is_password_changed' => (bool) $user->password_logs_count,
             'is_email_verified' => (bool) $user->email_verified_at,
+            'permissions' => $user->permissions(),
         ]);
     }
 
@@ -70,7 +71,7 @@ class AuthController extends Controller
 
         $user->update(['last_login_at' => now()]);
 
-        $user->load('userGroup')->loadCount('passwordLogs');
+        $user->load('userGroup.roles.permissions')->loadCount('passwordLogs');
 
         return response()->json([
             'id' => $user->id,
@@ -81,6 +82,7 @@ class AuthController extends Controller
             'account' => $user->account,
             'is_password_changed' => (bool) $user->password_logs_count,
             'is_email_verified' => (bool) $user->email_verified_at,
+            'permissions' => $user->permissions(),
         ]);
     }
 
@@ -133,7 +135,7 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
-        $user = $request->user()->load('userGroup')->loadCount('passwordLogs');
+        $user = $request->user()->load('userGroup.roles.permissions')->loadCount('passwordLogs');
 
         return response()->json([
             'id' => $user->id,
@@ -144,6 +146,7 @@ class AuthController extends Controller
             'account' => $user->account,
             'is_password_changed' => (bool) $user->password_logs_count,
             'is_email_verified' => (bool) $user->email_verified_at,
+            'permissions' => $user->permissions(),
         ]);
     }
 
