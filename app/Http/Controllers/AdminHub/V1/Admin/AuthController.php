@@ -41,15 +41,17 @@ class AuthController extends Controller
         $user->update(['last_login_at' => now()]);
 
         return response()->json([
-            'id' => $user->id,
-            'user_group' => $user->userGroup->name,
-            'name' => $user->name,
-            'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
-            'email' => $user->email,
-            'account' => $user->account,
-            'is_password_changed' => (bool) $user->password_logs_count,
-            'is_email_verified' => (bool) $user->email_verified_at,
-            'permissions' => $user->permissions(),
+            'data' => [
+                'id' => $user->id,
+                'user_group' => $user->userGroup->name,
+                'name' => $user->name,
+                'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
+                'email' => $user->email,
+                'account' => $user->account,
+                'is_password_changed' => (bool) $user->password_logs_count,
+                'is_email_verified' => (bool) $user->email_verified_at,
+                'permissions' => $user->permissions(),
+            ],
         ]);
     }
 
@@ -74,15 +76,17 @@ class AuthController extends Controller
         $user->load('userGroup.roles.permissions')->loadCount('passwordLogs');
 
         return response()->json([
-            'id' => $user->id,
-            'user_group' => $user->userGroup->name,
-            'name' => $user->name,
-            'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
-            'email' => $user->email,
-            'account' => $user->account,
-            'is_password_changed' => (bool) $user->password_logs_count,
-            'is_email_verified' => (bool) $user->email_verified_at,
-            'permissions' => $user->permissions(),
+            'data' => [
+                'id' => $user->id,
+                'user_group' => $user->userGroup->name,
+                'name' => $user->name,
+                'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
+                'email' => $user->email,
+                'account' => $user->account,
+                'is_password_changed' => (bool) $user->password_logs_count,
+                'is_email_verified' => (bool) $user->email_verified_at,
+                'permissions' => $user->permissions(),
+            ],
         ]);
     }
 
@@ -138,15 +142,17 @@ class AuthController extends Controller
         $user = $request->user()->load('userGroup.roles.permissions')->loadCount('passwordLogs');
 
         return response()->json([
-            'id' => $user->id,
-            'user_group' => $user->userGroup->name,
-            'name' => $user->name,
-            'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
-            'email' => $user->email,
-            'account' => $user->account,
-            'is_password_changed' => (bool) $user->password_logs_count,
-            'is_email_verified' => (bool) $user->email_verified_at,
-            'permissions' => $user->permissions(),
+            'data' => [
+                'id' => $user->id,
+                'user_group' => $user->userGroup->name,
+                'name' => $user->name,
+                'avatar' => $user->avatar ? asset("adminhub/uploads/{$user->avatar}") : null,
+                'email' => $user->email,
+                'account' => $user->account,
+                'is_password_changed' => (bool) $user->password_logs_count,
+                'is_email_verified' => (bool) $user->email_verified_at,
+                'permissions' => $user->permissions(),
+            ],
         ]);
     }
 
