@@ -8,11 +8,14 @@ use App\Http\Requests\AdminHub\V1\Admin\PermissionStoreRequest;
 use App\Http\Requests\AdminHub\V1\Admin\PermissionUpdateRequest;
 use App\Models\AdminHub\Permission;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class PermissionController extends Controller
 {
     public function index(): JsonResponse
     {
+        Gate::authorize('viewAny', Permission::class);
+
         return response()->json([
             'data' => Permission::orderBy('sort')->orderBy('id')->get(['id', 'name', 'action'])
                 ->transform(fn ($permission) => [
@@ -29,6 +32,8 @@ class PermissionController extends Controller
 
     public function store(PermissionStoreRequest $request): JsonResponse
     {
+        Gate::authorize('create', Permission::class);
+
         $input = $request->validated();
 
         $permission = Permission::create($input);
@@ -48,6 +53,8 @@ class PermissionController extends Controller
 
     public function show(Permission $permission): JsonResponse
     {
+        Gate::authorize('view', $permission);
+
         return response()->json([
             'data' => [
                 'id' => $permission->id,
@@ -60,6 +67,8 @@ class PermissionController extends Controller
 
     public function update(PermissionUpdateRequest $request, Permission $permission): JsonResponse
     {
+        Gate::authorize('update', $permission);
+
         $input = $request->validated();
 
         $permission->update($input);
@@ -94,6 +103,8 @@ class PermissionController extends Controller
 
     public function destroy(Permission $permission): JsonResponse
     {
+        Gate::authorize('delete', $permission);
+
         $permission->roles()->detach();
 
         $permission->delete();
@@ -103,6 +114,8 @@ class PermissionController extends Controller
 
     public function sort(PermissionSortRequest $request): JsonResponse
     {
+        Gate::authorize('update', Permission::class);
+
         $input = $request->validated();
 
         foreach ($input['ids'] as $key => $id) {
