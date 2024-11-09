@@ -80,16 +80,13 @@ class User extends Authenticatable implements MustVerifyEmail
 
         foreach ($rolePermissions as $permission) {
             foreach ($permission as $resource => $actions) {
-                if (!isset($permissions[$resource])) {
-                    $permissions[$resource] = $actions;
-                } else {
-                    foreach ($actions as $action => $value) {
-                        if (!isset($permissions[$resource][$action])) {
-                            $permissions[$resource][$action] = $value;
-                        } else {
-                            $permissions[$resource][$action] = $permissions[$resource][$action] || $value;
-                        }
-                    }
+                $actions = array_filter($actions);
+
+                foreach ($actions as $action => $value) {
+                    $permissions[] = [
+                        'action' => $action,
+                        'subject' => $resource,
+                    ];
                 }
             }
         }
