@@ -11,6 +11,7 @@ use App\Models\AdminHub\UserGroup;
 use App\Notifications\AdminHubUserRegistered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -18,6 +19,8 @@ class UserController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        Gate::authorize('viewAny', User::class);
+
         $currUser = $request->user();
 
         $length = $request->integer('length', 35);
@@ -53,6 +56,8 @@ class UserController extends Controller
 
     public function create(Request $request): JsonResponse
     {
+        Gate::authorize('create', User::class);
+
         $currUserGroup = $request->user()->userGroup;
 
         return response()->json([
@@ -65,6 +70,8 @@ class UserController extends Controller
 
     public function store(UserStoreRequest $request): JsonResponse
     {
+        Gate::authorize('create', User::class);
+
         $input = $request->safe();
 
         $currUserGroup = $request->user()->userGroup;
@@ -105,6 +112,8 @@ class UserController extends Controller
 
     public function edit(Request $request, User $user): JsonResponse
     {
+        Gate::authorize('update', $user);
+
         $currUser = $request->user()->load('userGroup');
 
         abort_if($user->userGroup->level <= $currUser->userGroup->level && $user->id !== $currUser->id, 403, '權限不足');
@@ -119,6 +128,8 @@ class UserController extends Controller
 
     public function show(Request $request, User $user): JsonResponse
     {
+        Gate::authorize('view', $user);
+
         $currUser = $request->user()->load('userGroup');
 
         abort_if($user->userGroup->level <= $currUser->userGroup->level && $user->id !== $currUser->id, 403, '權限不足');
@@ -138,6 +149,8 @@ class UserController extends Controller
 
     public function update(UserUpdateRequest $request, User $user): JsonResponse
     {
+        Gate::authorize('update', $user);
+
         $currUser = $request->user()->load('userGroup');
 
         abort_if($user->userGroup->level <= $currUser->userGroup->level && $user->id !== $currUser->id, 403, '權限不足');
@@ -176,6 +189,8 @@ class UserController extends Controller
 
     public function destroy(User $user): JsonResponse
     {
+        Gate::authorize('delete', $user);
+
         if ($user->avatar) {
             Storage::disk('adminhub')->delete($user->avatar);
         }
@@ -187,6 +202,8 @@ class UserController extends Controller
 
     public function status(StatusRequest $request, User $user): JsonResponse
     {
+        Gate::authorize('update', $user);
+
         $input = $request->safe();
 
         $user->update([

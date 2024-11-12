@@ -10,11 +10,14 @@ use App\Models\AdminHub\Role;
 use App\Models\AdminHub\UserGroup;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class UserGroupController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        Gate::authorize('viewAny', UserGroup::class);
+
         $currUserGroup = $request->user()->userGroup;
 
         $length = $request->integer('length', 35);
@@ -47,6 +50,8 @@ class UserGroupController extends Controller
 
     public function create(Request $request): JsonResponse
     {
+        Gate::authorize('create', UserGroup::class);
+
         $user = $request->user();
 
         return response()->json([
@@ -59,6 +64,8 @@ class UserGroupController extends Controller
 
     public function store(UserGroupStoreRequest $request): JsonResponse
     {
+        Gate::authorize('create', UserGroup::class);
+
         $input = $request->safe();
 
         $user = $request->user();
@@ -83,6 +90,8 @@ class UserGroupController extends Controller
 
     public function edit(Request $request, UserGroup $userGroup): JsonResponse
     {
+        Gate::authorize('update', $userGroup);
+
         $currUserGroup = $request->user()->userGroup;
 
         abort_if($userGroup->level <= $currUserGroup->level && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
@@ -99,6 +108,8 @@ class UserGroupController extends Controller
 
     public function show(Request $request, UserGroup $userGroup): JsonResponse
     {
+        Gate::authorize('view', $userGroup);
+
         $currUserGroup = $request->user()->userGroup;
 
         abort_if($userGroup->level <= $currUserGroup->level && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
@@ -117,6 +128,8 @@ class UserGroupController extends Controller
 
     public function update(UserGroupUpdateRequest $request, UserGroup $userGroup): JsonResponse
     {
+        Gate::authorize('update', $userGroup);
+
         $currUserGroup = $request->user()->userGroup;
 
         abort_if($userGroup->level <= $currUserGroup->level && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
@@ -141,6 +154,8 @@ class UserGroupController extends Controller
 
     public function destroy(Request $request, UserGroup $userGroup): JsonResponse
     {
+        Gate::authorize('delete', $userGroup);
+
         $currUserGroup = $request->user()->userGroup;
 
         abort_if($userGroup->level <= $currUserGroup->level && $userGroup->id !== $currUserGroup->id, 403, '權限不足');
@@ -160,6 +175,8 @@ class UserGroupController extends Controller
 
     public function status(StatusRequest $request, UserGroup $userGroup): JsonResponse
     {
+        Gate::authorize('update', $userGroup);
+
         $input = $request->safe();
 
         $userGroup->update([
