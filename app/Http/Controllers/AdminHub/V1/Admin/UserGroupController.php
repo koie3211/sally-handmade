@@ -11,6 +11,7 @@ use App\Models\AdminHub\UserGroup;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class UserGroupController extends Controller
 {
@@ -28,8 +29,7 @@ class UserGroupController extends Controller
             ->where(fn ($query) => $query->where('id', $currUserGroup->id)
                 ->orWhere('level', '>', $currUserGroup->level))
             ->when($keyword, fn ($query) => $query->where('name', 'like', "%{$keyword}%"))
-            ->orderByRaw("`id`='{$currUserGroup->id}' DESC")
-            ->orderBy('sort')->orderBy('id')
+            ->orderByRaw("`id`='{$currUserGroup->id}' DESC")->orderBy('sort')->orderBy('id')
             ->paginate($length);
 
         // TODO: 增加判斷參數
@@ -165,6 +165,8 @@ class UserGroupController extends Controller
         abort_if($userGroup->id === $currUserGroup->id, 400, '禁止刪除自己的群組');
 
         $userGroup->roles()->detach();
+
+        $userGroup->users->each(fn ($user) => $user->avatar ? Storage::disk('adminhub')->delete($user->avatar) : '');
 
         $userGroup->users()->delete();
 

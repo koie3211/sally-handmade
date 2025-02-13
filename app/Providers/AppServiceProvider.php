@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Model::shouldBeStrict(! $this->app->isProduction());
+        Model::shouldBeStrict(!$this->app->isProduction());
 
         Passport::enablePasswordGrant();
 

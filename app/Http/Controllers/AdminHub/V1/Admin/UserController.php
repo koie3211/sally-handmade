@@ -30,9 +30,11 @@ class UserController extends Controller
         $rows = User::with('userGroup:id,name,level')
             ->where(fn ($query) => $query->where('id', $currUser->id)
                 ->orWhereRelation('userGroup', 'level', '>', $currUser->userGroup->level))
-            ->when($keyword, fn ($query) => $query->where('account', 'like', "%{$keyword}%")
-                ->orWhere('name', 'like', "%{$keyword}%")->orWhere('email', 'like', "%{$keyword}%")
-                ->orWhereRelation('userGroup', 'name', 'like', "%{$keyword}%"))
+            ->when($keyword, fn ($query) => $query->where(fn ($query) => $query
+                ->where('account', 'like', "%{$keyword}%")
+                ->orWhere('name', 'like', "%{$keyword}%")
+                ->orWhere('email', 'like', "%{$keyword}%")
+                ->orWhereRelation('userGroup', 'name', 'like', "%{$keyword}%")))
             ->orderByRaw("`id`='{$currUser->id}' DESC")->orderBy('id')
             ->paginate($length);
 
@@ -120,7 +122,8 @@ class UserController extends Controller
 
         return response()->json([
             'data' => [
-                'user_groups' => UserGroup::where('level', '>', $currUser->userGroup->level)
+                'user_groups' => UserGroup::where('id', $currUser->userGroup->id)
+                    ->orWhere('level', '>', $currUser->userGroup->level)
                     ->orderBy('sort')->orderBy('id')->get(['id as value', 'name as label']),
             ],
         ]);

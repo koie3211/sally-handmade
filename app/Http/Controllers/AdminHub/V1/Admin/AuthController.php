@@ -97,7 +97,7 @@ class AuthController extends Controller
         return redirect()->to('admin');
     }
 
-    public function resend(Request $request)
+    public function resend(Request $request): JsonResponse
     {
         $request->user()->sendEmailVerificationNotification();
 
