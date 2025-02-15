@@ -37,6 +37,9 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
 
                 Route::put('users/{user}/status', [AdminHub\V1\Admin\UserController::class, 'status'])->whereUlid('user');
                 Route::resource('users', AdminHub\V1\Admin\UserController::class)->whereUlid('user');
+
+                Route::put('banners/{banner}/status', [AdminHub\V1\Admin\BannerController::class, 'status'])->whereNumber('banner');
+                Route::apiResource('banners', AdminHub\V1\Admin\BannerController::class)->whereNumber('banner');
             });
         });
     });
