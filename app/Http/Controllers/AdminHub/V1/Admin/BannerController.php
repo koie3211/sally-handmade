@@ -4,8 +4,8 @@ namespace App\Http\Controllers\AdminHub\V1\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminHub\V1\Admin\BannerStoreRequest;
+use App\Http\Requests\AdminHub\V1\Admin\BannerUpdateRequest;
 use App\Http\Requests\AdminHub\V1\Admin\StatusRequest;
-use App\Http\Requests\AdminHub\V1\Admin\UserUpdateRequest;
 use App\Models\AdminHub\Banner;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -80,7 +80,7 @@ class BannerController extends Controller
         ]);
     }
 
-    public function update(UserUpdateRequest $request, Banner $banner): JsonResponse
+    public function update(BannerUpdateRequest $request, Banner $banner): JsonResponse
     {
         Gate::authorize('update', $banner);
 
