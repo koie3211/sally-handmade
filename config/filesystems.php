@@ -41,7 +41,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -50,7 +50,7 @@ return [
         'adminhub' => [
             'driver' => 'local',
             'root' => public_path('adminhub/uploads'),
-            'url' => env('APP_URL').'/adminhub/uploads',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/adminhub/uploads',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
@@ -59,7 +59,7 @@ return [
         'music' => [
             'driver' => 'local',
             'root' => public_path('music/uploads/music'),
-            'url' => env('APP_URL').'/music/uploads/music',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/music/uploads/music',
             'visibility' => 'public',
             'report' => false,
         ],
