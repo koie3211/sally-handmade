@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminHub;
 use App\Http\Controllers\Line;
 use App\Http\Controllers\Music;
+use App\Http\Controllers\Registrar;
 use Illuminate\Support\Facades\Route;
 
 Route::domain('line.sally-handmade.com')->group(function () {
@@ -43,6 +44,17 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
             });
         });
     });
+});
+
+Route::domain('registrar.sally-handmade.com')->prefix('api/v1/registrar')->group(function () {
+    Route::get('dashboard', Registrar\V1\DashboardController::class);
+
+    Route::patch('cases/{registrar_case}/status', [Registrar\V1\CaseController::class, 'status'])->whereNumber('registrar_case');
+    Route::patch('cases/{registrar_case}/steps/{step}', [Registrar\V1\CaseController::class, 'step'])->whereNumber('registrar_case');
+    Route::patch('cases/{registrar_case}/payment', [Registrar\V1\CaseController::class, 'payment'])->whereNumber('registrar_case');
+    Route::apiResource('cases', Registrar\V1\CaseController::class)
+        ->parameters(['cases' => 'registrar_case'])
+        ->whereNumber('registrar_case');
 });
 
 Route::domain('api.sally-handmade.com')->name('music.')->group(function () {
