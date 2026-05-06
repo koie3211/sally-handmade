@@ -26,3 +26,7 @@ Route::domain('exam.sally-handmade.com')->group(function () {
 Route::domain('registrar.sally-handmade.com')->group(function () {
     Route::view('/', 'registrar.index');
 });
+
+Route::domain('liff.sally-handmade.com')->group(function () {
+    Route::view('/', 'liff.index');
+});
