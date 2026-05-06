@@ -22,3 +22,7 @@ Route::domain('exam.sally-handmade.com')->group(function () {
     Route::get('exam/{subject?}', [Exam\ExamController::class, 'index']);
     Route::post('result', [Exam\ExamController::class, 'store']);
 });
+
+Route::domain('registrar.sally-handmade.com')->group(function () {
+    Route::view('/', 'registrar.index');
+});

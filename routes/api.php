@@ -6,8 +6,8 @@ use App\Http\Controllers\Music;
 use App\Http\Controllers\Registrar;
 use Illuminate\Support\Facades\Route;
 
-Route::domain('line.sally-handmade.com')->group(function () {
-    Route::post('api/v1/webhook', [Line\V1\LineController::class, 'webhook']);
+Route::domain('line.sally-handmade.com')->prefix('api/v1')->group(function () {
+    Route::post('webhook', [Line\V1\LineController::class, 'webhook']);
 });
 
 Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function () {
@@ -46,7 +46,7 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
     });
 });
 
-Route::domain('registrar.sally-handmade.com')->prefix('api/v1/registrar')->group(function () {
+Route::domain('registrar.sally-handmade.com')->prefix('api/v1')->group(function () {
     Route::get('dashboard', Registrar\V1\DashboardController::class);
 
     Route::patch('cases/{registrar_case}/status', [Registrar\V1\CaseController::class, 'status'])->whereNumber('registrar_case');
