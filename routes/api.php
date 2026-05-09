@@ -47,14 +47,23 @@ Route::domain('adminhub.sally-handmade.com')->prefix('api/v1')->group(function (
 });
 
 Route::domain('registrar.sally-handmade.com')->prefix('api/v1')->group(function () {
-    Route::get('dashboard', Registrar\V1\DashboardController::class);
+    Route::middleware('guest:registrar')->post('login', [Registrar\V1\AuthController::class, 'login'])->middleware('throttle:6,1');
 
-    Route::patch('cases/{registrar_case}/status', [Registrar\V1\CaseController::class, 'status'])->whereNumber('registrar_case');
-    Route::patch('cases/{registrar_case}/steps/{step}', [Registrar\V1\CaseController::class, 'step'])->whereNumber('registrar_case');
-    Route::patch('cases/{registrar_case}/payment', [Registrar\V1\CaseController::class, 'payment'])->whereNumber('registrar_case');
-    Route::apiResource('cases', Registrar\V1\CaseController::class)
-        ->parameters(['cases' => 'registrar_case'])
-        ->whereNumber('registrar_case');
+    Route::middleware('auth:registrar')->group(function () {
+        Route::get('user', [Registrar\V1\AuthController::class, 'user']);
+        Route::post('logout', [Registrar\V1\AuthController::class, 'logout']);
+        Route::get('passkeys', [Registrar\V1\AuthController::class, 'passkeys']);
+        Route::delete('passkeys/{passkey}', [Registrar\V1\AuthController::class, 'deletePasskey'])->whereNumber('passkey');
+
+        Route::get('dashboard', Registrar\V1\DashboardController::class);
+
+        Route::patch('cases/{registrar_case}/status', [Registrar\V1\CaseController::class, 'status'])->whereNumber('registrar_case');
+        Route::patch('cases/{registrar_case}/steps/{step}', [Registrar\V1\CaseController::class, 'step'])->whereNumber('registrar_case');
+        Route::patch('cases/{registrar_case}/payment', [Registrar\V1\CaseController::class, 'payment'])->whereNumber('registrar_case');
+        Route::apiResource('cases', Registrar\V1\CaseController::class)
+            ->parameters(['cases' => 'registrar_case'])
+            ->whereNumber('registrar_case');
+    });
 });
 
 Route::domain('api.sally-handmade.com')->name('music.')->group(function () {

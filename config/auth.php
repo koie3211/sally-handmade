@@ -46,6 +46,11 @@ return [
             'provider' => 'adminhub',
         ],
 
+        'registrar' => [
+            'driver' => 'session',
+            'provider' => 'registrar_users',
+        ],
+
         'music_user' => [
             'driver' => 'passport',
             'provider' => 'music_users',
@@ -83,6 +88,11 @@ return [
         'adminhub' => [
             'driver' => 'eloquent',
             'model' => App\Models\AdminHub\User::class,
+        ],
+
+        'registrar_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Registrar\User::class,
         ],
 
         'music_users' => [

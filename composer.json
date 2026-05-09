@@ -10,6 +10,7 @@
         "intervention/image-laravel": "^4.0",
         "laravel/ai": "^0.6.6",
         "laravel/framework": "^13.0",
+        "laravel/passkeys": "^0.1.0",
         "laravel/passport": "^13.0",
         "laravel/sanctum": "^4.3",
         "linecorp/line-bot-sdk": "^12.5"

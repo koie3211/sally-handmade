@@ -29,6 +29,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->view('adminhub.admin.index');
             }
 
+            // registrar 後台 vue
+            if ($subdomain === 'registrar' && !$request->expectsJson()) {
+                return response()->view('registrar.index');
+            }
+
             // music api 404
             if ($request->expectsJson() && $request->routeIs('music.*')) {
                 return response()->json([
