@@ -45,7 +45,9 @@ class LineBotService
 
     private MessagingApiBlobApi $messagingBlobApi;
 
-    public function __construct()
+    private LineAiChatService $aiChatService;
+
+    public function __construct(?LineAiChatService $aiChatService = null)
     {
         $config = new Configuration();
         $config->setAccessToken((string) config('services.line.channel_access_token'));
@@ -53,6 +55,7 @@ class LineBotService
         $client = new Client();
         $this->messagingApi = new MessagingApiApi(client: $client, config: $config);
         $this->messagingBlobApi = new MessagingApiBlobApi(client: $client, config: $config);
+        $this->aiChatService = $aiChatService ?? app(LineAiChatService::class);
     }
 
     public function handleWebhook(Request $request): Response
@@ -275,6 +278,13 @@ class LineBotService
         $normalized = mb_strtolower(trim($message->getText()));
         if (in_array($normalized, ['help', 'menu', '功能'], true)) {
             $this->replyMainMenuFlex($event->getReplyToken());
+
+            return;
+        }
+
+        $aiReply = $this->aiChatService->resolveReply($message->getText());
+        if ($aiReply !== null) {
+            $this->replyText($event->getReplyToken(), $aiReply);
 
             return;
         }
