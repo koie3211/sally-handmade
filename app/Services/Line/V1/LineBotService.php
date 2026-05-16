@@ -316,9 +316,8 @@ class LineBotService
         $sfo = $this->messagingBlobApi->getMessageContent($contentId);
 
         $imageName = str()->ulid().'.webp';
-        Image::read($sfo->fread($sfo->getSize()))
+        Image::decode($sfo->fread($sfo->getSize()))
             ->scaleDown(1200)
-            ->toWebp()
             ->save("line/uploads/img/{$imageName}");
 
         $this->replyText($event->getReplyToken(), asset("line/uploads/img/{$imageName}"));
