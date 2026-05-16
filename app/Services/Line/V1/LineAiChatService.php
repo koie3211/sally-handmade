@@ -13,11 +13,11 @@ class LineAiChatService
 
     private const FAILURE_REPLY = '我剛剛有點恍神，晚點再問我一次好嗎？';
 
-    private const INVALID_IMAGE_URL_REPLY = '目前只能分析 sallyhandmade.com 網域的圖片網址（jpg、jpeg、png、webp、gif）。';
+    private const INVALID_IMAGE_URL_REPLY = '目前只能分析 sally-handmade.com 網域的圖片網址（jpg、jpeg、png、webp、gif）。';
 
     private const DEFAULT_IMAGE_PROMPT = '請簡短描述這張圖片裡有什麼。';
 
-    private const ALLOWED_IMAGE_HOST = 'sallyhandmade.com';
+    private const ALLOWED_IMAGE_HOST = 'sally-handmade.com';
 
     private const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
