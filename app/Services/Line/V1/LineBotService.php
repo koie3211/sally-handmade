@@ -60,7 +60,7 @@ class LineBotService
 
     public function handleWebhook(Request $request): Response
     {
-        $payload = json_encode($request->input(), JSON_UNESCAPED_UNICODE);
+        $payload = $request->getContent();
         Log::info('line.webhook.received', ['payload' => $payload]);
 
         try {
@@ -320,7 +320,11 @@ class LineBotService
             ->scaleDown(1200)
             ->save("line/uploads/img/{$imageName}");
 
-        $this->replyText($event->getReplyToken(), asset("line/uploads/img/{$imageName}"));
+        $imageUrl = asset("line/uploads/img/{$imageName}");
+        $this->replyTextMessages($event->getReplyToken(), [
+            $imageUrl,
+            $this->aiChatService->analyzeImageUrl($imageUrl),
+        ]);
     }
 
     private function handleVideoMessage(MessageEvent $event, VideoMessageContent $message): void
@@ -412,14 +416,30 @@ class LineBotService
 
     private function replyText(string $replyToken, string $text): void
     {
+        $this->replyTextMessages($replyToken, [$text]);
+    }
+
+    private function replyTextMessages(string $replyToken, array $texts): void
+    {
+        $this->replyMessages($replyToken, array_map(
+            fn (string $text) => $this->makeTextMessage($text),
+            $texts
+        ));
+    }
+
+    private function makeTextMessage(string $text): TextMessage
+    {
+        return new TextMessage([
+            'type' => MessageType::TEXT,
+            'text' => $text,
+        ]);
+    }
+
+    private function replyMessages(string $replyToken, array $messages): void
+    {
         $this->messagingApi->replyMessage(new ReplyMessageRequest([
             'replyToken' => $replyToken,
-            'messages' => [
-                new TextMessage([
-                    'type' => MessageType::TEXT,
-                    'text' => $text,
-                ]),
-            ],
+            'messages' => $messages,
         ]));
     }
 }
