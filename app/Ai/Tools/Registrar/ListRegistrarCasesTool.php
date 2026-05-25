@@ -3,6 +3,8 @@
 namespace App\Ai\Tools\Registrar;
 
 use App\Ai\Tools\Registrar\Concerns\FormatsRegistrarCases;
+use App\Enums\Registrar\Accountant;
+use App\Enums\Registrar\CaseStatus;
 use App\Models\Registrar\RegistrarCase;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Ai\Contracts\Tool;
@@ -20,10 +22,10 @@ class ListRegistrarCasesTool implements Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'keyword' => $schema->string(),
-            'status' => $schema->string(),
-            'accountant' => $schema->string(),
-            'limit' => $schema->integer()->min(1)->max(20),
+            'keyword' => $schema->string()->nullable()->required(),
+            'status' => $schema->string()->enum([...array_column(CaseStatus::cases(), 'value'), null])->nullable()->required(),
+            'accountant' => $schema->string()->enum([...array_column(Accountant::cases(), 'value'), null])->nullable()->required(),
+            'limit' => $schema->integer()->min(1)->max(20)->nullable()->required(),
         ];
     }
 

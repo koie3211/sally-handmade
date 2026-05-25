@@ -21,7 +21,7 @@ class ListAwaitingPaymentCasesTool implements Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'limit' => $schema->integer()->min(1)->max(20),
+            'limit' => $schema->integer()->min(1)->max(20)->nullable()->required(),
         ];
     }
 

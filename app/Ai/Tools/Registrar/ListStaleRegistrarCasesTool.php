@@ -22,8 +22,8 @@ class ListStaleRegistrarCasesTool implements Tool
     public function schema(JsonSchema $schema): array
     {
         return [
-            'days' => $schema->integer()->min(1)->max(365),
-            'limit' => $schema->integer()->min(1)->max(20),
+            'days' => $schema->integer()->min(1)->max(365)->nullable()->required(),
+            'limit' => $schema->integer()->min(1)->max(20)->nullable()->required(),
         ];
     }
 
