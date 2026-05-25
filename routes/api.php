@@ -56,6 +56,7 @@ Route::domain('registrar.sally-handmade.com')->prefix('api/v1')->group(function 
         Route::delete('passkeys/{passkey}', [Registrar\V1\AuthController::class, 'deletePasskey'])->whereNumber('passkey');
 
         Route::get('dashboard', Registrar\V1\DashboardController::class);
+        Route::post('assistant/chat', Registrar\V1\AssistantController::class);
 
         Route::patch('cases/{registrar_case}/status', [Registrar\V1\CaseController::class, 'status'])->whereNumber('registrar_case');
         Route::patch('cases/{registrar_case}/steps/{step}', [Registrar\V1\CaseController::class, 'step'])->whereNumber('registrar_case');
