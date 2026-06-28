@@ -1,0 +1,38 @@
+{
+    "name": "荷包",
+    "short_name": "荷包",
+    "description": "家庭日常收支記帳工具",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#f8fafc",
+    "theme_color": "#4f46e5",
+    "lang": "zh-TW",
+    "icons": [
+        {
+            "src": "/budget/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/budget/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "快速記帳",
+            "url": "/",
+            "description": "開啟首頁快速新增記帳"
+        },
+        {
+            "name": "本月分析",
+            "url": "/analysis",
+            "description": "查看本月消費分析"
+        }
+    ]
+}

@@ -18,7 +18,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
         $middleware->trustHosts(at: ['sally-handmade.com']);
-        $middleware->redirectGuestsTo(fn (Request $request) => abort(401, '尚未登入'));
+        $middleware->redirectGuestsTo(function (Request $request) {
+            $subdomain = explode('.', $request->getHost())[0];
+            if ($subdomain === 'budget') {
+                return route('budget.login');
+            }
+            abort(401, '尚未登入');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {

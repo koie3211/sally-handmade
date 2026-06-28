@@ -60,6 +60,11 @@ return [
             'driver' => 'passport',
             'provider' => 'music_admins',
         ],
+
+        'budget' => [
+            'driver' => 'session',
+            'provider' => 'budget_users',
+        ],
     ],
 
     /*
@@ -103,6 +108,11 @@ return [
         'music_admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Music\Admin::class,
+        ],
+
+        'budget_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Budget\User::class,
         ],
 
         // 'users' => [
