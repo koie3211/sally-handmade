@@ -57,6 +57,9 @@
         .sheet-slide-up { animation: slideUpSheet 0.35s cubic-bezier(0.32, 0.72, 0, 1); }
     </style>
 
+    {{-- jsQR（QR Code 解析）--}}
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1/dist/jsQR.js"></script>
+
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 
@@ -87,6 +90,7 @@
         // Alpine 元件
         document.addEventListener('alpine:init', () => {
             Alpine.data('addTransaction', (categories) => ({
+                // ── 記帳表單狀態 ────────────────────────────
                 open: false,
                 loading: false,
                 type: 'expense',
@@ -96,6 +100,17 @@
                 date: new Date().toISOString().slice(0, 10),
                 categories,
 
+                // ── 掃描器狀態 ──────────────────────────────
+                scannerOpen: false,
+                videoStream: null,
+                scannerAnimation: null,
+
+                // ── 下拉收起狀態 ─────────────────────────────
+                dragStartY: 0,
+                dragY: 0,
+                dragging: false,
+
+                // ── 計算屬性 ────────────────────────────────
                 get expenseCategories() {
                     return this.categories.filter(c => c.type === 'expense')
                 },
@@ -106,7 +121,9 @@
                     return this.type === 'expense' ? this.expenseCategories : this.incomeCategories
                 },
 
+                // ── 記帳表單方法 ────────────────────────────
                 openSheet() {
+                    this.dragY = 0
                     this.open = true
                     this.reset()
                 },
@@ -117,6 +134,35 @@
                     this.note = ''
                     this.date = new Date().toISOString().slice(0, 10)
                     this.loading = false
+                },
+
+                // ── 下拉收起手勢 ─────────────────────────────
+                dragStart(e) {
+                    this.dragging  = true
+                    this.dragStartY = (e.touches ? e.touches[0] : e).clientY
+                    this.dragY     = 0
+                },
+
+                dragMove(e) {
+                    if (!this.dragging) return
+                    const delta = (e.touches ? e.touches[0] : e).clientY - this.dragStartY
+                    this.dragY = Math.max(0, delta)   // 只允許向下拖
+                    if (delta > 0) e.preventDefault() // 防止頁面捲動
+                },
+
+                dragEnd() {
+                    this.dragging = false
+                    if (this.dragY > 100) {
+                        // 超過閾值：讓 sheet 滑出後再關閉
+                        this.dragY = window.innerHeight
+                        setTimeout(() => {
+                            this.open  = false
+                            this.dragY = 0
+                        }, 280)
+                    } else {
+                        // 未達閾值：彈回原位
+                        this.dragY = 0
+                    }
                 },
 
                 async submit() {
@@ -139,6 +185,138 @@
                         alert(e.message)
                     } finally {
                         this.loading = false
+                    }
+                },
+
+                // ── 掃描器方法 ──────────────────────────────
+                openScanner() {
+                    if (!navigator.mediaDevices?.getUserMedia) {
+                        alert('您的瀏覽器不支援相機功能，請確認已授予相機權限')
+                        return
+                    }
+                    this.scannerOpen = true
+                    this.$nextTick(() => {
+                        const video = document.getElementById('invoice-scanner-video')
+                        navigator.mediaDevices.getUserMedia({
+                            video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                        }).then(stream => {
+                            this.videoStream = stream
+                            video.srcObject = stream
+                            video.play()
+                            this.scanFrame()
+                        }).catch(err => {
+                            this.scannerOpen = false
+                            alert('無法開啟相機：' + (err.message || '請確認已授予相機權限'))
+                        })
+                    })
+                },
+
+                closeScanner() {
+                    if (this.scannerAnimation) {
+                        cancelAnimationFrame(this.scannerAnimation)
+                        this.scannerAnimation = null
+                    }
+                    if (this.videoStream) {
+                        this.videoStream.getTracks().forEach(t => t.stop())
+                        this.videoStream = null
+                    }
+                    this.scannerOpen = false
+                },
+
+                scanFrame() {
+                    if (!this.scannerOpen) return
+                    const video = document.getElementById('invoice-scanner-video')
+                    const canvas = document.getElementById('invoice-scanner-canvas')
+                    if (!video || !canvas) return
+
+                    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                        canvas.width = video.videoWidth
+                        canvas.height = video.videoHeight
+                        const ctx = canvas.getContext('2d')
+                        ctx.drawImage(video, 0, 0)
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: 'dontInvert',
+                        })
+                        if (code && this.parseInvoiceQR(code.data)) {
+                            this.closeScanner()
+                            return
+                        }
+                    }
+                    this.scannerAnimation = requestAnimationFrame(() => this.scanFrame())
+                },
+
+                parseInvoiceQR(text) {
+                    // 台灣電子發票左側 QR Code 格式（77碼固定頭 + 品項段）：
+                    // [0-9]   發票號碼 (10碼, 例 AB12345678)
+                    // [10-16] 民國日期 (7碼, YYYMMDD)
+                    // [17-20] 隨機碼 (4碼)
+                    // [21-28] 銷售額未稅 (8碼 hex)
+                    // [29-36] 銷售額含稅 (8碼 hex)
+                    // [37-44] 買方統編 (8碼)
+                    // [45-52] 賣方統編 (8碼)
+                    // [53-76] 驗證碼 (24碼 base64)
+                    // [77+]   :[編碼]:[品項數]:[品名1]:[數量1]:[單價1]:...
+                    if (!text || text.length < 37) return false
+
+                    // 驗證發票號碼格式（2大寫字母 + 8數字）
+                    const invoiceNo = text.slice(0, 10)
+                    if (!/^[A-Z]{2}\d{8}$/.test(invoiceNo)) return false
+
+                    try {
+                        // 解析民國年日期 → ISO 格式
+                        const dateStr = text.slice(10, 17)
+                        const rocYear = parseInt(dateStr.slice(0, 3), 10)
+                        const month   = dateStr.slice(3, 5)
+                        const day     = dateStr.slice(5, 7)
+                        this.date = `${rocYear + 1911}-${month}-${day}`
+
+                        // 解析含稅總金額（hex → 十進位）
+                        const totalHex = text.slice(29, 37)
+                        const total = parseInt(totalHex, 16)
+                        if (!isNaN(total) && total > 0) {
+                            this.amount = total.toString()
+                        }
+
+                        // 解析品項名稱 → 填入備註
+                        // 品項段從第 77 碼開始：:[編碼類型]:[品項數]:[品名]:...
+                        // 編碼類型 1 = Big5 base64，2 = UTF-8 base64
+                        if (text.length > 77 && text[77] === ':') {
+                            const parts = text.slice(78).split(':')
+                            // parts[0]=編碼, parts[1]=品項數, parts[2]=第一品名(base64), ...
+                            if (parts.length >= 3) {
+                                const encoding  = parts[0]   // '1' or '2'
+                                const itemCount = parseInt(parts[1], 10) || 0
+                                const rawName   = parts[2]
+
+                                let firstName = ''
+                                if (encoding === '2' && rawName) {
+                                    // UTF-8 base64 → 解碼
+                                    try {
+                                        const bytes = Uint8Array.from(atob(rawName), c => c.charCodeAt(0))
+                                        firstName = new TextDecoder('utf-8').decode(bytes)
+                                    } catch { /* 解碼失敗則留空 */ }
+                                } else if (encoding === '1' && rawName) {
+                                    // Big5 base64：嘗試直接 atob（部分環境可顯示）
+                                    try {
+                                        firstName = atob(rawName)
+                                        // 若含亂碼（非可顯示字元）則放棄
+                                        if (/[\x00-\x08\x0e-\x1f\x7f]/.test(firstName)) firstName = ''
+                                    } catch { /* 解碼失敗則留空 */ }
+                                }
+
+                                if (firstName) {
+                                    this.note = itemCount > 1
+                                        ? `${firstName} 等${itemCount}項`
+                                        : firstName
+                                    this.note = this.note.slice(0, 50)
+                                }
+                            }
+                        }
+
+                        return true
+                    } catch {
+                        return false
                     }
                 },
             }))

@@ -1,5 +1,51 @@
-{{-- 新增記帳 Bottom Sheet（由 x-data="addTransaction(...)" 控制）--}}
+{{-- 新增記帳 Bottom Sheet + 發票掃描器（由 x-data="addTransaction(...)" 控制）--}}
 <template x-teleport="body">
+
+    {{-- ── 相機掃描 Overlay ────────────────────────────── --}}
+    <div x-show="scannerOpen"
+         class="fixed inset-0 z-[60] bg-black flex flex-col">
+
+        {{-- 頂部控制 --}}
+        <div class="flex items-center justify-between px-5 pb-3 safe-area-top" style="padding-top: max(1.25rem, env(safe-area-inset-top))">
+            <div>
+                <p class="text-white font-semibold">掃描統一發票</p>
+                <p class="text-slate-400 text-xs mt-0.5">對準發票左側較大的 QR Code</p>
+            </div>
+            <button @click="closeScanner()" class="text-white p-2 rounded-full hover:bg-white/10 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        {{-- 相機畫面 --}}
+        <div class="flex-1 relative overflow-hidden">
+            <video id="invoice-scanner-video"
+                   class="absolute inset-0 w-full h-full object-cover"
+                   playsinline autoplay muted></video>
+
+            {{-- 半透明遮罩 + 掃描框 --}}
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="relative w-64 h-64">
+                    {{-- 四角指示線 --}}
+                    <span class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-indigo-400 rounded-tl-lg"></span>
+                    <span class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-indigo-400 rounded-tr-lg"></span>
+                    <span class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-indigo-400 rounded-bl-lg"></span>
+                    <span class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-indigo-400 rounded-br-lg"></span>
+                </div>
+            </div>
+        </div>
+
+        {{-- 底部提示 --}}
+        <div class="px-4 py-5 text-center" style="padding-bottom: calc(1.25rem + env(safe-area-inset-bottom))">
+            <p class="text-white/60 text-sm">自動辨識後將填入金額與日期</p>
+        </div>
+
+        {{-- 隱藏 canvas（jsQR 解析用）--}}
+        <canvas id="invoice-scanner-canvas" class="hidden"></canvas>
+    </div>
+
+    {{-- ── 新增記帳 Bottom Sheet ───────────────────────── --}}
     <div
         x-show="open"
         x-transition:enter="fade-in"
@@ -14,8 +60,15 @@
             x-transition:enter="sheet-slide-up"
             class="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white px-5 pt-4 shadow-2xl"
             style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom))"
+            :style="`transform: translateY(${dragY}px);
+                     opacity: ${Math.max(0, 1 - dragY / 400)};
+                     transition: ${dragging ? 'none' : 'transform 0.28s cubic-bezier(0.32,0.72,0,1), opacity 0.28s'};`"
         >
-            <div class="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200"></div>
+            {{-- 拖曳把手（觸控啟動下拉手勢）--}}
+            <div class="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200 touch-none cursor-grab"
+                 @touchstart="dragStart($event)"
+                 @touchmove="dragMove($event)"
+                 @touchend="dragEnd()"></div>
 
             <h2 class="mb-4 text-center text-base font-semibold text-slate-700">新增記帳</h2>
 
@@ -33,9 +86,19 @@
                 </button>
             </div>
 
-            {{-- 金額輸入 --}}
+            {{-- 金額輸入 + 掃描按鈕 --}}
             <div class="mb-4 rounded-2xl bg-slate-50 px-4 py-3">
-                <label class="mb-1 block text-xs text-slate-400">金額</label>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="text-xs text-slate-400">金額</label>
+                    <button @click="openScanner()"
+                            class="flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        掃描發票
+                    </button>
+                </div>
                 <div class="flex items-baseline gap-1">
                     <span class="text-xl text-slate-400">$</span>
                     <input
@@ -97,4 +160,5 @@
             </div>
         </div>
     </div>
+
 </template>
