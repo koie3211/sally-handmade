@@ -146,8 +146,7 @@
                 dragMove(e) {
                     if (!this.dragging) return
                     const delta = (e.touches ? e.touches[0] : e).clientY - this.dragStartY
-                    this.dragY = Math.max(0, delta)   // 只允許向下拖
-                    if (delta > 0) e.preventDefault() // 防止頁面捲動
+                    this.dragY = Math.max(0, delta)
                 },
 
                 dragEnd() {

@@ -59,15 +59,17 @@
             x-show="open"
             x-transition:enter="sheet-slide-up"
             class="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white px-5 pt-4 shadow-2xl"
-            style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom))"
-            :style="`transform: translateY(${dragY}px);
-                     opacity: ${Math.max(0, 1 - dragY / 400)};
-                     transition: ${dragging ? 'none' : 'transform 0.28s cubic-bezier(0.32,0.72,0,1), opacity 0.28s'};`"
+            :style="{
+                paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))',
+                transform: `translateY(${dragY}px)`,
+                opacity: Math.max(0, 1 - dragY / 400),
+                transition: dragging ? 'none' : 'transform 0.28s cubic-bezier(0.32,0.72,0,1), opacity 0.28s'
+            }"
         >
             {{-- 拖曳把手（觸控啟動下拉手勢）--}}
             <div class="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200 touch-none cursor-grab"
                  @touchstart="dragStart($event)"
-                 @touchmove="dragMove($event)"
+                 @touchmove.prevent="dragMove($event)"
                  @touchend="dragEnd()"></div>
 
             <h2 class="mb-4 text-center text-base font-semibold text-slate-700">新增記帳</h2>
