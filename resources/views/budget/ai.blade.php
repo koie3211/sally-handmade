@@ -3,7 +3,7 @@
 @section('title', 'AI 消費建議')
 
 @section('content')
-<div x-data="aiPage()" x-init="loadSuggestions()">
+<div x-data="aiPage()">
 
     {{-- 頂部標題 --}}
     <div class="bg-white px-5 pt-12 pb-4 shadow-sm safe-area-top">
@@ -12,18 +12,32 @@
                 <h1 class="text-xl font-bold text-slate-800">AI 消費建議</h1>
                 <p class="text-xs text-slate-400 mt-0.5">根據近 30 天消費分析</p>
             </div>
-            <button @click="loadSuggestions()" :disabled="loading"
+            <button x-show="suggestions" @click="loadSuggestions()" :disabled="loading"
                     class="flex items-center gap-1.5 rounded-xl bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-600 transition
                            hover:bg-indigo-100 disabled:opacity-50">
                 <svg class="h-3.5 w-3.5" :class="loading ? 'animate-spin' : ''" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                 </svg>
-                重新生成
+                重新分析
             </button>
         </div>
     </div>
 
     <div class="px-4 py-4">
+
+        {{-- 尚未分析（初始狀態）--}}
+        <div x-show="!loading && !error && !suggestions" class="mt-16 flex flex-col items-center gap-4 text-center">
+            <div class="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-50 text-4xl">🤖</div>
+            <div>
+                <p class="font-semibold text-slate-700">AI 消費分析</p>
+                <p class="mt-1 text-sm text-slate-400">根據近 30 天記帳資料<br>給你個人化的節省建議</p>
+            </div>
+            <button @click="loadSuggestions()"
+                    class="rounded-2xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-500/30
+                           transition hover:bg-indigo-700 active:scale-95">
+                開始分析
+            </button>
+        </div>
 
         {{-- 載入中 --}}
         <div x-show="loading" class="space-y-3">
@@ -61,7 +75,7 @@
                 <div class="flex items-center gap-3">
                     <div class="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-2xl">🤖</div>
                     <div>
-                        <p class="font-semibold">Sally AI 理財顧問</p>
+                        <p class="font-semibold">荷包 AI 理財顧問</p>
                         <p class="text-xs text-indigo-200">根據近 30 天的消費資料分析</p>
                     </div>
                 </div>

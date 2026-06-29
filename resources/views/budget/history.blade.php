@@ -61,51 +61,52 @@
                         </div>
 
                         {{-- 當日交易 --}}
-                        <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 divide-y divide-slate-50">
+                        <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
                             @foreach ($dayTransactions as $transaction)
-                                <div class="flex items-center gap-3 px-4 py-3"
-                                     x-data="{ confirmDelete: false }">
-                                    <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl">
-                                        {{ $transaction->category->icon }}
+                                <div x-data="{ confirmDelete: false }" class="divide-y divide-slate-50">
+                                    <div class="flex items-center gap-3 px-4 py-3">
+                                        <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl">
+                                            {{ $transaction->category->icon }}
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="truncate text-sm font-medium text-slate-700">
+                                                {{ $transaction->category->name }}
+                                            </p>
+                                            @if ($transaction->note)
+                                                <p class="truncate text-xs text-slate-400">{{ $transaction->note }}</p>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-base font-bold {{ $transaction->type === 'expense' ? 'text-rose-500' : 'text-emerald-600' }}">
+                                                {{ $transaction->formatted_amount }}
+                                            </span>
+                                            <button @click="confirmDelete = !confirmDelete"
+                                                    class="text-slate-300 transition hover:text-rose-400">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="min-w-0 flex-1">
-                                        <p class="truncate text-sm font-medium text-slate-700">
-                                            {{ $transaction->category->name }}
-                                        </p>
-                                        @if ($transaction->note)
-                                            <p class="truncate text-xs text-slate-400">{{ $transaction->note }}</p>
-                                        @endif
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-base font-bold {{ $transaction->type === 'expense' ? 'text-rose-500' : 'text-emerald-600' }}">
-                                            {{ $transaction->formatted_amount }}
-                                        </span>
-                                        <button @click="confirmDelete = !confirmDelete"
-                                                class="text-slate-300 transition hover:text-rose-400">
-                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
 
-                                {{-- 確認刪除 --}}
-                                <div x-show="confirmDelete"
-                                     class="flex items-center justify-between bg-rose-50 px-4 py-2">
-                                    <span class="text-xs text-rose-600">確定刪除這筆記錄？</span>
-                                    <div class="flex gap-2">
-                                        <button @click="confirmDelete=false"
-                                                class="text-xs text-slate-500 px-2 py-1">取消</button>
-                                        <button
-                                            @click="
-                                                fetch('{{ route('budget.transactions.destroy', $transaction->id) }}', {
-                                                    method:'DELETE',
-                                                    headers:{'X-CSRF-TOKEN':document.querySelector('[name=csrf-token]')?.content ?? '{{ csrf_token() }}','Accept':'application/json'}
-                                                }).then(()=>location.reload())
-                                            "
-                                            class="rounded-lg bg-rose-500 px-3 py-1 text-xs font-semibold text-white">
-                                            刪除
-                                        </button>
+                                    {{-- 確認刪除（同一 x-data 作用域內）--}}
+                                    <div x-show="confirmDelete"
+                                         class="flex items-center justify-between bg-rose-50 px-4 py-2">
+                                        <span class="text-xs text-rose-600">確定刪除這筆記錄？</span>
+                                        <div class="flex gap-2">
+                                            <button @click="confirmDelete = false"
+                                                    class="text-xs text-slate-500 px-2 py-1">取消</button>
+                                            <button
+                                                @click="
+                                                    window.budgetUtils.fetchJson(
+                                                        '{{ route('budget.transactions.destroy', $transaction->id) }}',
+                                                        { method: 'DELETE' }
+                                                    ).then(() => location.reload())
+                                                "
+                                                class="rounded-lg bg-rose-500 px-3 py-1 text-xs font-semibold text-white">
+                                                刪除
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach

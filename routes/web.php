@@ -53,5 +53,9 @@ Route::domain('budget.sally-handmade.com')->group(function () {
         Route::delete('/transactions/{transaction}', [Budget\TransactionController::class, 'destroy'])->name('budget.transactions.destroy');
         Route::get('/api/analysis/monthly', [Budget\AnalysisController::class, 'monthly'])->name('budget.api.analysis.monthly');
         Route::get('/api/ai/suggest', [Budget\AiController::class, 'suggest'])->name('budget.api.ai.suggest');
+
+        // 設定
+        Route::get('/settings', [Budget\ProfileController::class, 'showSettings'])->name('budget.settings');
+        Route::put('/settings/password', [Budget\ProfileController::class, 'changePassword'])->name('budget.settings.password');
     });
 });
