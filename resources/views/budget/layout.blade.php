@@ -255,23 +255,30 @@
 
                         if (text.length > 77 && text[77] === ':') {
                             const parts = text.slice(78).split(':')
-                            if (parts.length >= 3) {
-                                const encoding  = parts[0]
-                                const itemCount = parseInt(parts[1], 10) || 0
-                                const rawName   = parts[2]
-                                let firstName   = ''
-                                if (encoding === '2' && rawName) {
+                            let name = ''
+
+                            if (parts[0]?.startsWith('*')) {
+                                // 格式：[驗證碼*]:[編碼]:[未知]:[品項數]:[品名]:[數量]:[單價]
+                                // 編碼 1 = 明文，2 = UTF-8 base64
+                                const encoding = parts[1] ?? ''
+                                const rawName  = parts[4] ?? ''
+                                if (encoding === '2') {
                                     try {
                                         const bytes = Uint8Array.from(atob(rawName), c => c.charCodeAt(0))
-                                        firstName = new TextDecoder('utf-8').decode(bytes)
+                                        name = new TextDecoder('utf-8').decode(bytes).trim()
                                     } catch { /* ignore */ }
-                                } else if (encoding === '1' && rawName) {
-                                    try { firstName = atob(rawName) } catch { /* ignore */ }
+                                } else {
+                                    name = rawName.trim()
                                 }
-                                if (firstName) {
-                                    this.note = (itemCount > 1 ? `${firstName} 等${itemCount}項` : firstName).slice(0, 50)
-                                }
+                            } else {
+                                // 格式：[編碼]:[品項數]:[品名(base64)]
+                                try {
+                                    const bytes = Uint8Array.from(atob(parts[2] ?? ''), c => c.charCodeAt(0))
+                                    name = new TextDecoder('utf-8').decode(bytes).trim()
+                                } catch { /* ignore */ }
                             }
+
+                            if (name) this.note = name.slice(0, 50)
                         }
                         return true
                     } catch {
