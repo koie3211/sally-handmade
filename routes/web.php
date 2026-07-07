@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminHub;
 use App\Http\Controllers\Budget;
 use App\Http\Controllers\Exam;
+use App\Http\Controllers\Registrar;
 use Illuminate\Support\Facades\Route;
 
 Route::domain('adminhub.sally-handmade.com')->group(function () {
@@ -26,6 +27,8 @@ Route::domain('exam.sally-handmade.com')->group(function () {
 
 Route::domain('registrar.sally-handmade.com')->group(function () {
     Route::view('/', 'registrar.index');
+    Route::get('/lookup', Registrar\BusinessItemLookupController::class)->name('registrar.lookup');
+    Route::get('/compose', Registrar\BusinessItemComposeController::class)->name('registrar.compose');
 });
 
 Route::domain('liff.sally-handmade.com')->group(function () {
