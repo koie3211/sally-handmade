@@ -80,7 +80,8 @@
                  @touchmove.prevent="dragMove($event)"
                  @touchend="dragEnd()"></div>
 
-            <h2 class="mb-4 text-center text-base font-semibold text-slate-700">新增記帳</h2>
+            <h2 class="mb-4 text-center text-base font-semibold text-slate-700"
+                x-text="editingId ? '編輯記帳' : '新增記帳'"></h2>
 
             {{-- 支出 / 收入 切換 --}}
             <div class="mb-4 flex rounded-xl bg-slate-100 p-1 gap-1">
@@ -165,8 +166,8 @@
                 <button @click="submit()" :disabled="loading || !amount || !categoryId"
                         class="flex-1 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm
                                transition disabled:opacity-50 active:scale-95 hover:bg-indigo-700">
-                    <span x-show="!loading">新增</span>
-                    <span x-show="loading">新增中…</span>
+                    <span x-show="!loading" x-text="editingId ? '儲存' : '新增'"></span>
+                    <span x-show="loading" x-text="editingId ? '儲存中…' : '新增中…'"></span>
                 </button>
             </div>
         </div>

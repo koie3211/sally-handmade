@@ -99,6 +99,14 @@
                 note: '',
                 date: new Date().toISOString().slice(0, 10),
                 categories,
+                editingId: null,        // 編輯模式的交易 ID，null = 新增模式
+
+                // ── 刪除確認狀態 ─────────────────────────────
+                confirmDeleteId: null,  // 等待確認刪除的交易 ID
+                deleting: false,
+
+                // ── 列滑動狀態 ──────────────────────────────
+                swipe: {},  // { [id]: { x, startX, dragging } }
 
                 // ── 下拉收起狀態 ─────────────────────────────
                 dragStartY: 0,
@@ -123,9 +131,22 @@
 
                 // ── 表單方法 ─────────────────────────────────
                 openSheet() {
+                    this.editingId = null
                     this.dragY = 0
                     this.open = true
                     this.reset()
+                },
+
+                openEditSheet(tx) {
+                    this.editingId  = tx.id
+                    this.type       = tx.type
+                    this.amount     = tx.amount
+                    this.categoryId = tx.category_id
+                    this.note       = tx.note ?? ''
+                    this.date       = tx.transaction_date
+                    this.loading    = false
+                    this.dragY      = 0
+                    this.open       = true
                 },
 
                 reset() {
@@ -140,16 +161,20 @@
                     if (!this.amount || !this.categoryId) return
                     this.loading = true
                     try {
-                        await window.budgetUtils.fetchJson('/transactions', {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                category_id: this.categoryId,
-                                amount: this.amount,
-                                type: this.type,
-                                note: this.note,
-                                transaction_date: this.date,
-                            }),
-                        })
+                        const isEdit = !!this.editingId
+                        await window.budgetUtils.fetchJson(
+                            isEdit ? `/transactions/${this.editingId}` : '/transactions',
+                            {
+                                method: isEdit ? 'PUT' : 'POST',
+                                body: JSON.stringify({
+                                    category_id: this.categoryId,
+                                    amount: this.amount,
+                                    type: this.type,
+                                    note: this.note,
+                                    transaction_date: this.date,
+                                }),
+                            }
+                        )
                         this.open = false
                         window.location.reload()
                     } catch (e) {
@@ -157,6 +182,71 @@
                     } finally {
                         this.loading = false
                     }
+                },
+
+                // ── 刪除確認方法 ─────────────────────────────
+                async performDelete() {
+                    if (!this.confirmDeleteId) return
+                    this.deleting = true
+                    try {
+                        await window.budgetUtils.fetchJson(
+                            `/transactions/${this.confirmDeleteId}`,
+                            { method: 'DELETE' }
+                        )
+                        window.location.reload()
+                    } catch (e) {
+                        alert(e.message)
+                        this.deleting = false
+                        this.confirmDeleteId = null
+                    }
+                },
+
+                // ── 列滑動手勢 ──────────────────────────────
+                swipeX(id) {
+                    return this.swipe[id]?.x ?? 0
+                },
+
+                swipeDragging(id) {
+                    return this.swipe[id]?.dragging ?? false
+                },
+
+                swipeStart(id, e) {
+                    if (!this.swipe[id]) this.swipe[id] = { x: 0, startX: 0, dragging: false }
+                    this.swipe[id].dragging = true
+                    this.swipe[id].startX  = (e.touches ? e.touches[0] : e).clientX
+                    this.swipe[id].x       = 0
+                },
+
+                swipeMove(id, e) {
+                    if (!this.swipe[id]?.dragging) return
+                    const delta = (e.touches ? e.touches[0] : e).clientX - this.swipe[id].startX
+                    // 限制滑動範圍：左滑最多 -90，右滑最多 90
+                    this.swipe[id].x = Math.max(-90, Math.min(90, delta))
+                },
+
+                swipeEnd(id, tx) {
+                    if (!this.swipe[id]) return
+                    const x = this.swipe[id].x
+                    this.swipe[id].dragging = false
+
+                    if (x < -60) {
+                        // 左滑：定格顯示編輯按鈕
+                        this.swipe[id].x = -80
+                    } else if (x > 60) {
+                        // 右滑：定格顯示刪除按鈕
+                        this.swipe[id].x = 80
+                    } else {
+                        // 未達閾值：彈回
+                        this.swipe[id].x = 0
+                    }
+                },
+
+                resetSwipe(id) {
+                    if (this.swipe[id]) this.swipe[id].x = 0
+                },
+
+                resetAllSwipe() {
+                    Object.keys(this.swipe).forEach(id => { this.swipe[id].x = 0 })
                 },
 
                 // ── 下拉收起手勢 ─────────────────────────────
