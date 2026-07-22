@@ -13,7 +13,25 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="荷包">
+    <meta name="format-detection" content="telephone=no, date=no, email=no, address=no">
+
+    {{-- Apple Touch Icons（iOS 依序選最接近尺寸）--}}
+    <link rel="apple-touch-icon" sizes="180x180" href="/budget/icon-192.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/budget/icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/budget/icon-192.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/budget/icon-192.png">
     <link rel="apple-touch-icon" href="/budget/icon-192.png">
+    <link rel="apple-touch-icon-precomposed" href="/budget/icon-192.png">
+
+    {{-- Apple Splash Screens（啟動畫面）--}}
+    {{-- iPhone 16 Pro Max (430pt @3x) --}}
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/budget/splash-1320x2868.png">
+    {{-- iPhone 15 / 14 / 13 (390pt @3x) --}}
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/budget/splash-1170x2532.png">
+    {{-- iPhone SE 3rd gen (375pt @2x) --}}
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/budget/splash-750x1334.png">
+    {{-- iPad Pro 12.9" 6th gen (1024pt @2x) --}}
+    <link rel="apple-touch-startup-image" media="screen and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/budget/splash-2048x2732.png">
 
     {{-- Tailwind CSS Play CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
