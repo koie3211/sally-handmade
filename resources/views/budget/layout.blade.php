@@ -229,33 +229,54 @@
                 },
 
                 swipeStart(id, e) {
-                    if (!this.swipe[id]) this.swipe[id] = { x: 0, startX: 0, dragging: false }
-                    this.swipe[id].dragging = true
-                    this.swipe[id].startX  = (e.touches ? e.touches[0] : e).clientX
-                    this.swipe[id].x       = 0
+                    const touch = e.touches ? e.touches[0] : e
+                    this.swipe[id] = { x: 0, startX: touch.clientX, startY: touch.clientY, dragging: false, locked: null }
+                    // locked: null = 方向未決定, 'h' = 水平滑動, 'v' = 垂直捲動
                 },
 
                 swipeMove(id, e) {
-                    if (!this.swipe[id]?.dragging) return
-                    const delta = (e.touches ? e.touches[0] : e).clientX - this.swipe[id].startX
-                    // 限制滑動範圍：左滑最多 -90，右滑最多 90
-                    this.swipe[id].x = Math.max(-90, Math.min(90, delta))
+                    const s = this.swipe[id]
+                    if (!s) return
+                    const touch = e.touches ? e.touches[0] : e
+                    const dx = touch.clientX - s.startX
+                    const dy = touch.clientY - s.startY
+
+                    // 移動超過 8px 才決定方向，避免誤判
+                    if (!s.locked) {
+                        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+                        s.locked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v'
+                    }
+
+                    // 垂直：不攔截，讓頁面正常捲動
+                    if (s.locked === 'v') return
+
+                    // 確認是水平滑動才阻止捲動並追蹤位移
+                    e.preventDefault()
+                    s.dragging = true
+                    s.x = Math.max(-90, Math.min(90, dx))
                 },
 
                 swipeEnd(id, tx) {
                     if (!this.swipe[id]) return
-                    const x = this.swipe[id].x
-                    this.swipe[id].dragging = false
+                    const s = this.swipe[id]
+                    s.dragging = false
 
+                    // 垂直捲動時直接彈回，不做任何判斷
+                    if (s.locked === 'v') {
+                        s.x = 0
+                        return
+                    }
+
+                    const x = s.x
                     if (x < -60) {
                         // 左滑：定格顯示編輯按鈕
-                        this.swipe[id].x = -80
+                        s.x = -80
                     } else if (x > 60) {
                         // 右滑：定格顯示刪除按鈕
-                        this.swipe[id].x = 80
+                        s.x = 80
                     } else {
                         // 未達閾值：彈回
-                        this.swipe[id].x = 0
+                        s.x = 0
                     }
                 },
 

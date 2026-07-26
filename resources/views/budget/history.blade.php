@@ -113,7 +113,7 @@
                                              transition: swipeDragging({{ $transaction->id }}) ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)'
                                          }"
                                          @touchstart="swipeStart({{ $transaction->id }}, $event)"
-                                         @touchmove.prevent="swipeMove({{ $transaction->id }}, $event)"
+                                         @touchmove="swipeMove({{ $transaction->id }}, $event)"
                                          @touchend="swipeEnd({{ $transaction->id }}, {{ json_encode($txData) }})"
                                          @click="resetAllSwipe()">
 
