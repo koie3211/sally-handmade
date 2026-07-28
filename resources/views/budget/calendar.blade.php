@@ -4,11 +4,10 @@
 
 @section('content')
 <div x-data="calendarApp({{ json_encode($appointments) }}, {{ $year }}, {{ $month }})"
-     x-init="init()"
-     @click.self="selectedDate = null">
+     x-init="init()">
 
-    {{-- 頂部：月份導覽 --}}
-    <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 px-4 pb-4 pt-12 safe-area-top">
+    {{-- 頂部：月份導覽（僅保留導覽，不含日期格）--}}
+    <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 px-4 py-4 safe-area-top">
         <div class="flex items-center justify-between">
             <button @click="prevMonth()"
                     class="flex h-9 w-9 items-center justify-center rounded-full text-indigo-200 hover:bg-indigo-700/50 transition active:scale-90">
@@ -19,8 +18,7 @@
 
             <div class="text-center">
                 <p class="text-xl font-bold text-white" x-text="`${currentYear} 年 ${currentMonth} 月`"></p>
-                <p class="text-xs text-indigo-200 mt-0.5"
-                   x-text="monthAppointmentCount + ' 個預約'"></p>
+                <p class="text-xs text-indigo-200 mt-0.5" x-text="monthAppointmentCount + ' 個預約'"></p>
             </div>
 
             <button @click="nextMonth()"
@@ -30,139 +28,157 @@
                 </svg>
             </button>
         </div>
+    </div>
 
-        {{-- 星期列 --}}
-        <div class="mt-4 grid grid-cols-7 text-center">
-            <template x-for="w in ['日','一','二','三','四','五','六']" :key="w">
-                <span class="text-xs font-medium text-indigo-200 py-1" x-text="w"></span>
+    {{-- 月曆主體（白底，整頁寬）--}}
+    <div class="bg-white">
+
+        {{-- 星期標題列 --}}
+        <div class="grid grid-cols-7 border-b border-slate-100">
+            <template x-for="(w, wi) in ['日','一','二','三','四','五','六']" :key="wi">
+                <div class="py-2 text-center text-xs font-semibold"
+                     :class="wi === 0 ? 'text-rose-400' : (wi === 6 ? 'text-slate-400' : 'text-slate-500')"
+                     x-text="w">
+                </div>
             </template>
         </div>
 
         {{-- 日期格 --}}
-        <div class="grid grid-cols-7">
+        <div class="grid grid-cols-7 divide-x divide-slate-100">
             <template x-for="(day, i) in calendarDays" :key="i">
-                <button
-                    class="relative flex flex-col items-center py-1.5 transition"
-                    :class="{
-                        'opacity-0 pointer-events-none': !day,
-                        'rounded-xl bg-white/20': day && selectedDate === day.date,
-                    }"
-                    @click="day && selectDate(day.date)">
+                <div class="min-h-[5.5rem] border-b border-slate-100 px-0.5 pt-1 pb-0.5 transition-colors cursor-pointer"
+                     :class="{
+                         'opacity-0 pointer-events-none': !day,
+                         'bg-indigo-50': day && selectedDate === day.date,
+                         'bg-white': day && selectedDate !== day.date,
+                     }"
+                     @click="day && selectDate(day.date)">
 
-                    <span class="text-sm font-medium leading-tight"
-                          :class="{
-                              'text-white': day,
-                              'text-yellow-300 font-bold': day && day.isToday,
-                              'text-white/40': day && (day.weekday === 0 || day.weekday === 6),
-                          }"
-                          x-text="day ? day.d : ''">
-                    </span>
-
-                    {{-- 預約指示點 --}}
-                    <div class="flex gap-0.5 mt-0.5 h-1.5">
-                        <template x-if="day && day.count > 0">
-                            <div class="flex gap-0.5">
-                                <span class="w-1 h-1 rounded-full bg-yellow-300"></span>
-                                <template x-if="day.count > 1">
-                                    <span class="w-1 h-1 rounded-full bg-yellow-300/60"></span>
-                                </template>
-                            </div>
-                        </template>
+                    {{-- 日期數字 --}}
+                    <div class="flex justify-center mb-0.5">
+                        <span class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold leading-none"
+                              :class="{
+                                  'bg-indigo-600 text-white': day && day.isToday,
+                                  'text-rose-400': day && !day.isToday && day.weekday === 0,
+                                  'text-slate-400': day && !day.isToday && day.weekday === 6,
+                                  'text-slate-700': day && !day.isToday && day.weekday > 0 && day.weekday < 6,
+                              }"
+                              x-text="day ? day.d : ''">
+                        </span>
                     </div>
-                </button>
+
+                    {{-- 預約 chip（最多顯示 3 筆）--}}
+                    <template x-if="day && day.events.length > 0">
+                        <div class="space-y-0.5">
+                            <template x-for="(ev, ei) in day.events.slice(0, 3)" :key="ev.id">
+                                <div class="flex items-center gap-0.5 rounded px-1 py-0.5 bg-indigo-100 text-indigo-700"
+                                     @click.stop="openEditSheet(ev)">
+                                    <span class="w-1 h-1 flex-shrink-0 rounded-full bg-indigo-500"></span>
+                                    <span class="truncate text-[10px] font-medium leading-tight" x-text="ev.title"></span>
+                                </div>
+                            </template>
+
+                            {{-- +N 更多 --}}
+                            <template x-if="day.count > 3">
+                                <div class="px-1 text-[10px] font-medium text-indigo-500 leading-tight"
+                                     x-text="'+' + (day.count - 3) + ' 更多'">
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
             </template>
         </div>
     </div>
 
-    {{-- 選中日期的預約清單 --}}
-    <div class="mx-4 mt-4">
+    {{-- 選中日期清單面板 --}}
+    <div x-show="selectedDate"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         class="mx-4 mt-4 mb-2">
 
-        {{-- 未選日期：顯示本月所有預約 --}}
-        <template x-if="!selectedDate">
-            <div>
-                <h2 class="mb-3 text-sm font-semibold text-slate-500 uppercase tracking-wide">
-                    本月所有預約
-                    <span class="ml-1 text-indigo-600" x-text="'(' + monthAppointmentCount + ')'"></span>
-                </h2>
+        <div class="mb-3 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-slate-700" x-text="formatSelectedDate()"></h2>
+            <div class="flex items-center gap-3">
+                <button @click="openSheet(selectedDate)"
+                        class="text-xs font-semibold text-indigo-600">+ 新增</button>
+                <button @click="selectedDate = null"
+                        class="text-xs text-slate-400">關閉</button>
+            </div>
+        </div>
 
-                <template x-if="appointments.length === 0">
-                    <div class="rounded-2xl bg-white p-8 text-center text-slate-400 shadow-sm ring-1 ring-slate-100">
-                        <p class="text-3xl">📅</p>
-                        <p class="mt-2 text-sm">本月還沒有預約，點 + 新增</p>
-                    </div>
-                </template>
-
-                <div class="space-y-2">
-                    <template x-for="apt in appointments" :key="apt.id">
-                        <div class="flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100"
-                             @click="openEditSheet(apt)">
-                            <div class="flex-shrink-0 rounded-xl bg-indigo-50 px-2 py-1 text-center min-w-[3rem]">
-                                <p class="text-lg font-bold text-indigo-600 leading-none"
-                                   x-text="apt.start_at.substring(8,10)"></p>
-                                <p class="text-xs text-indigo-400"
-                                   x-text="monthName(apt.start_at.substring(5,7))"></p>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
-                                <p class="text-xs text-slate-400 mt-0.5"
-                                   x-text="apt.start_time + (apt.end_time ? ' – ' + apt.end_time : '')"></p>
-                                <p class="text-xs text-slate-400 truncate" x-text="apt.note" x-show="apt.note"></p>
-                            </div>
-                            <button class="flex-shrink-0 text-slate-300 hover:text-rose-400 transition p-1"
-                                    @click.stop="confirmDelete(apt.id)">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </template>
-                </div>
+        <template x-if="dayAppointments.length === 0">
+            <div class="rounded-2xl bg-white p-5 text-center text-slate-400 shadow-sm ring-1 ring-slate-100">
+                <p class="text-sm">這天還沒有預約</p>
             </div>
         </template>
 
-        {{-- 選中日期：顯示當天預約 --}}
-        <template x-if="selectedDate">
-            <div>
-                <div class="mb-3 flex items-center justify-between">
-                    <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wide"
-                        x-text="formatSelectedDate()"></h2>
-                    <button @click="selectedDate = null"
-                            class="text-xs text-indigo-600 font-medium">返回全月</button>
-                </div>
-
-                <template x-if="dayAppointments.length === 0">
-                    <div class="rounded-2xl bg-white p-6 text-center text-slate-400 shadow-sm ring-1 ring-slate-100">
-                        <p class="text-sm">這天還沒有預約</p>
-                        <button @click="openSheet(selectedDate)"
-                                class="mt-2 text-sm text-indigo-600 font-medium">+ 新增預約</button>
+        <div class="space-y-2">
+            <template x-for="apt in dayAppointments" :key="apt.id">
+                <div class="flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100"
+                     @click="openEditSheet(apt)">
+                    {{-- 時間欄 --}}
+                    <div class="flex-shrink-0 w-14 text-right">
+                        <p class="text-xs font-semibold text-indigo-600" x-text="apt.start_time"></p>
+                        <p class="text-xs text-slate-400" x-text="apt.end_time" x-show="apt.end_time"></p>
                     </div>
-                </template>
-
-                <div class="space-y-2">
-                    <template x-for="apt in dayAppointments" :key="apt.id">
-                        <div class="flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100"
-                             @click="openEditSheet(apt)">
-                            <div class="flex-shrink-0 rounded-xl bg-indigo-50 px-2 py-1 text-center min-w-[3rem]">
-                                <p class="text-sm font-bold text-indigo-600 leading-none" x-text="apt.start_time"></p>
-                                <template x-if="apt.end_time">
-                                    <p class="text-xs text-indigo-300 mt-0.5" x-text="apt.end_time"></p>
-                                </template>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
-                                <p class="text-xs text-slate-400 truncate mt-0.5" x-text="apt.note" x-show="apt.note"></p>
-                            </div>
-                            <button class="flex-shrink-0 text-slate-300 hover:text-rose-400 transition p-1"
-                                    @click.stop="confirmDelete(apt.id)">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </template>
+                    {{-- 標題/備註 --}}
+                    <div class="min-w-0 flex-1 border-l-2 border-indigo-300 pl-3">
+                        <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
+                        <p class="text-xs text-slate-400 truncate mt-0.5" x-text="apt.note" x-show="apt.note"></p>
+                    </div>
+                    {{-- 刪除 --}}
+                    <button class="flex-shrink-0 text-slate-300 hover:text-rose-400 transition p-1"
+                            @click.stop="confirmDelete(apt.id)">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
+            </template>
+        </div>
+    </div>
+
+    {{-- 未選日期：本月清單 --}}
+    <div x-show="!selectedDate" class="mx-4 mt-4">
+        <h2 class="mb-3 text-sm font-semibold text-slate-500 uppercase tracking-wide">
+            本月所有預約
+            <span class="ml-1 text-indigo-600" x-text="'(' + monthAppointmentCount + ')'"></span>
+        </h2>
+
+        <template x-if="appointments.length === 0">
+            <div class="rounded-2xl bg-white p-8 text-center text-slate-400 shadow-sm ring-1 ring-slate-100">
+                <p class="text-3xl">📅</p>
+                <p class="mt-2 text-sm">本月還沒有預約，點 + 新增</p>
             </div>
         </template>
+
+        <div class="space-y-2">
+            <template x-for="apt in appointments" :key="apt.id">
+                <div class="flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100"
+                     @click="openEditSheet(apt)">
+                    <div class="flex-shrink-0 rounded-xl bg-indigo-50 px-2 py-1 text-center min-w-[3rem]">
+                        <p class="text-lg font-bold text-indigo-600 leading-none"
+                           x-text="apt.start_at.substring(8,10)"></p>
+                        <p class="text-xs text-indigo-400"
+                           x-text="parseInt(apt.start_at.substring(5,7)) + ' 月'"></p>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
+                        <p class="text-xs text-slate-400 mt-0.5"
+                           x-text="apt.start_time + (apt.end_time ? ' – ' + apt.end_time : '')"></p>
+                        <p class="text-xs text-slate-400 truncate" x-text="apt.note" x-show="apt.note"></p>
+                    </div>
+                    <button class="flex-shrink-0 text-slate-300 hover:text-rose-400 transition p-1"
+                            @click.stop="confirmDelete(apt.id)">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </template>
+        </div>
     </div>
 
     {{-- 浮動新增按鈕 --}}
@@ -247,7 +263,7 @@
                                class="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                     </div>
 
-                    {{-- 開始時間 --}}
+                    {{-- 開始/結束時間 --}}
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">開始時間</label>
@@ -330,31 +346,34 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         },
 
         buildCalendar() {
-            const days = []
+            const days     = []
             const firstDay = new Date(this.currentYear, this.currentMonth - 1, 1)
             const lastDay  = new Date(this.currentYear, this.currentMonth, 0)
             const today    = new Date().toISOString().substring(0, 10)
 
-            // 填補月初空格（週日=0為第一欄）
+            // 填補月初空格（週日=0 為第一欄）
             for (let i = 0; i < firstDay.getDay(); i++) {
                 days.push(null)
             }
 
-            // 計算每天的預約數
-            const countMap = {}
+            // 建立日期 → 預約 map
+            const dayMap = {}
             this.appointments.forEach(a => {
-                countMap[a.start_date] = (countMap[a.start_date] ?? 0) + 1
+                if (!dayMap[a.start_date]) dayMap[a.start_date] = []
+                dayMap[a.start_date].push(a)
             })
 
             for (let d = 1; d <= lastDay.getDate(); d++) {
-                const date = `${this.currentYear}-${String(this.currentMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`
+                const date    = `${this.currentYear}-${String(this.currentMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`
                 const weekday = new Date(this.currentYear, this.currentMonth - 1, d).getDay()
+                const all     = dayMap[date] ?? []
                 days.push({
                     d,
                     date,
                     weekday,
                     isToday: date === today,
-                    count: countMap[date] ?? 0,
+                    events:  all.slice(0, 4),   // 最多存 4 筆（3 顯示 + 1 判斷是否有「更多」）
+                    count:   all.length,
                 })
             }
 
@@ -367,13 +386,9 @@ function calendarApp(initialAppointments, initYear, initMonth) {
 
         formatSelectedDate() {
             if (!this.selectedDate) return ''
-            const d = new Date(this.selectedDate + 'T00:00:00')
+            const d         = new Date(this.selectedDate + 'T00:00:00')
             const weekNames = ['日','一','二','三','四','五','六']
             return `${d.getMonth() + 1} 月 ${d.getDate()} 日（${weekNames[d.getDay()]}）`
-        },
-
-        monthName(mm) {
-            return parseInt(mm) + ' 月'
         },
 
         async prevMonth() {
@@ -415,7 +430,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
 
         openSheet(date = null) {
             this.editingId = null
-            this.errorMsg = ''
+            this.errorMsg  = ''
             const defaultDate = date ?? this.selectedDate ?? new Date().toISOString().substring(0, 10)
             this.form = {
                 title:    '',
@@ -424,20 +439,20 @@ function calendarApp(initialAppointments, initYear, initMonth) {
                 note:     '',
             }
             this.sheetOpen = true
-            this.dragY = 0
+            this.dragY     = 0
         },
 
         openEditSheet(apt) {
             this.editingId = apt.id
-            this.errorMsg = ''
+            this.errorMsg  = ''
             this.form = {
                 title:    apt.title,
                 start_at: apt.start_at,
                 end_at:   apt.end_at ?? '',
-                note:     apt.note ?? '',
+                note:     apt.note   ?? '',
             }
             this.sheetOpen = true
-            this.dragY = 0
+            this.dragY     = 0
         },
 
         closeSheet() {
@@ -445,7 +460,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         },
 
         async submitAppointment() {
-            this.errorMsg = ''
+            this.errorMsg  = ''
             this.submitting = true
             try {
                 const body = {
@@ -469,7 +484,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
                 })
 
                 if (!res.ok) {
-                    const err = await res.json()
+                    const err  = await res.json()
                     this.errorMsg = err.message ?? '發生錯誤，請稍後再試'
                     return
                 }
@@ -533,7 +548,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
 
         dragMove(e) {
             if (!this.dragging) return
-            const dy = e.touches[0].clientY - this.dragStartY
+            const dy   = e.touches[0].clientY - this.dragStartY
             this.dragY = Math.max(0, dy)
         },
 
