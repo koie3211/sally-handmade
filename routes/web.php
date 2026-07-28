@@ -57,6 +57,13 @@ Route::domain('budget.sally-handmade.com')->group(function () {
         Route::get('/api/analysis/monthly', [Budget\AnalysisController::class, 'monthly'])->name('budget.api.analysis.monthly');
         Route::get('/api/ai/suggest', [Budget\AiController::class, 'suggest'])->name('budget.api.ai.suggest');
 
+        // 行事曆
+        Route::get('/calendar', [Budget\CalendarController::class, 'index'])->name('budget.calendar');
+        Route::post('/appointments', [Budget\CalendarController::class, 'store'])->name('budget.appointments.store');
+        Route::put('/appointments/{appointment}', [Budget\CalendarController::class, 'update'])->name('budget.appointments.update');
+        Route::delete('/appointments/{appointment}', [Budget\CalendarController::class, 'destroy'])->name('budget.appointments.destroy');
+        Route::get('/api/calendar/monthly', [Budget\CalendarController::class, 'api'])->name('budget.api.calendar.monthly');
+
         // 設定
         Route::get('/settings', [Budget\ProfileController::class, 'showSettings'])->name('budget.settings');
         Route::put('/settings/password', [Budget\ProfileController::class, 'changePassword'])->name('budget.settings.password');
