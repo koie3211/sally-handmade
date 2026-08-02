@@ -520,19 +520,22 @@
 
 <div class="toast" id="toast">已複製到剪貼簿</div>
 
+@php
+    $orderBoot = [
+        'members' => $members,
+        'histories' => $histories,
+        'shopName' => $group->shop_name,
+        'imageUrl' => $group->image_url,
+        'round' => $group->round,
+        'saveUrl' => $saveUrl,
+        'finalizeUrl' => $finalizeUrl,
+        'restoreUrlTemplate' => $restoreUrlTemplate,
+        'stateUrl' => $stateUrl,
+        'csrf' => csrf_token(),
+    ];
+@endphp
 <script>
-window.ORDER_BOOT = @json([
-    'members' => $members,
-    'histories' => $histories,
-    'shopName' => $group->shop_name,
-    'imageUrl' => $group->image_url,
-    'round' => $group->round,
-    'saveUrl' => $saveUrl,
-    'finalizeUrl' => $finalizeUrl,
-    'restoreUrlTemplate' => $restoreUrlTemplate,
-    'stateUrl' => $stateUrl,
-    'csrf' => csrf_token(),
-]);
+window.ORDER_BOOT = @json($orderBoot);
 </script>
 <script>
 const BOOT = window.ORDER_BOOT || {};
