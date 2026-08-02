@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($subdomain === 'budget') {
                 return route('budget.login');
             }
+            if ($subdomain === 'order') {
+                return route('order.login');
+            }
             abort(401, '尚未登入');
         });
     })

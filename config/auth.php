@@ -65,6 +65,11 @@ return [
             'driver' => 'session',
             'provider' => 'budget_users',
         ],
+
+        'order' => [
+            'driver' => 'session',
+            'provider' => 'order_users',
+        ],
     ],
 
     /*
@@ -113,6 +118,11 @@ return [
         'budget_users' => [
             'driver' => 'eloquent',
             'model' => App\Models\Budget\User::class,
+        ],
+
+        'order_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Order\User::class,
         ],
 
         // 'users' => [

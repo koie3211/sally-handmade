@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminHub;
 use App\Http\Controllers\Budget;
 use App\Http\Controllers\Exam;
+use App\Http\Controllers\Order;
 use App\Http\Controllers\Registrar;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,36 @@ Route::domain('registrar.sally-handmade.com')->group(function () {
 
 Route::domain('liff.sally-handmade.com')->group(function () {
     Route::view('/', 'liff.index');
+});
+
+Route::domain('order.sally-handmade.com')->group(function () {
+    Route::get('/login', [Order\AuthController::class, 'showLogin'])->name('order.login');
+    Route::post('/login', [Order\AuthController::class, 'login'])->name('order.login.post');
+
+    Route::get('/g/{group}', [Order\PublicGroupController::class, 'show'])->name('order.group.show');
+    Route::get('/g/{group}/state', [Order\PublicGroupController::class, 'state'])->name('order.group.state');
+    Route::post('/g/{group}/orders', [Order\PublicGroupController::class, 'saveOrder'])->name('order.group.order.save');
+    Route::post('/g/{group}/finalize', [Order\PublicGroupController::class, 'finalize'])->name('order.group.finalize');
+    Route::post('/g/{group}/restore/{history}', [Order\PublicGroupController::class, 'restore'])->name('order.group.restore');
+
+    Route::middleware('auth:order')->group(function () {
+        Route::post('/logout', [Order\AuthController::class, 'logout'])->name('order.logout');
+
+        Route::get('/', Order\DashboardController::class)->name('order.dashboard');
+
+        Route::get('/members', [Order\MemberController::class, 'index'])->name('order.members.index');
+        Route::post('/members', [Order\MemberController::class, 'store'])->name('order.members.store');
+        Route::delete('/members/{member}', [Order\MemberController::class, 'destroy'])->name('order.members.destroy');
+
+        Route::get('/menus', [Order\MenuController::class, 'index'])->name('order.menus.index');
+        Route::post('/menus', [Order\MenuController::class, 'store'])->name('order.menus.store');
+        Route::put('/menus/{menu}', [Order\MenuController::class, 'update'])->name('order.menus.update');
+        Route::delete('/menus/{menu}', [Order\MenuController::class, 'destroy'])->name('order.menus.destroy');
+
+        Route::get('/groups/create', [Order\GroupController::class, 'create'])->name('order.groups.create');
+        Route::post('/groups', [Order\GroupController::class, 'store'])->name('order.groups.store');
+        Route::get('/groups/{group}', [Order\GroupController::class, 'show'])->name('order.groups.show');
+    });
 });
 
 Route::domain('budget.sally-handmade.com')->group(function () {
