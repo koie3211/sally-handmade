@@ -41,7 +41,7 @@ class GroupController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('order/groups', 'public');
+            $imagePath = $request->file('image')->store('order/groups', 'order');
         }
 
         $group = DB::transaction(function () use ($request, $menu, $shopName, $imagePath, $members) {

@@ -27,7 +27,7 @@ class Menu extends Model
                 return null;
             }
 
-            return Storage::disk('public')->url($this->image_path);
+            return Storage::disk('order')->url($this->image_path);
         });
     }
 

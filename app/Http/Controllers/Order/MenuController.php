@@ -22,7 +22,7 @@ class MenuController extends Controller
     {
         $path = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('order/menus', 'public');
+            $path = $request->file('image')->store('order/menus', 'order');
         }
 
         Menu::query()->create([
@@ -39,7 +39,7 @@ class MenuController extends Controller
 
         // Keep old image files so open groups that snapshot the same path still work.
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('order/menus', 'public');
+            $data['image_path'] = $request->file('image')->store('order/menus', 'order');
         }
 
         $menu->update($data);
