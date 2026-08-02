@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Group extends Model
@@ -42,7 +41,7 @@ class Group extends Model
                 return null;
             }
 
-            return Storage::disk('order')->url($this->image_path);
+            return asset($this->image_path);
         });
     }
 

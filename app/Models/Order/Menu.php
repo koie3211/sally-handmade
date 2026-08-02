@@ -5,7 +5,6 @@ namespace App\Models\Order;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class Menu extends Model
 {
@@ -27,7 +26,7 @@ class Menu extends Model
                 return null;
             }
 
-            return Storage::disk('order')->url($this->image_path);
+            return asset($this->image_path);
         });
     }
 
