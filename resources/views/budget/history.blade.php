@@ -8,15 +8,24 @@
     {{-- 頂部標題 --}}
     <div class="bg-white px-5 pb-4 shadow-sm safe-area-top">
         <div class="flex items-center justify-between">
-            <h1 class="text-xl font-bold text-slate-800">帳目記錄</h1>
-            {{-- 月份切換 --}}
-            <div class="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-1.5">
-                <form method="GET" action="{{ route('budget.history') }}">
-                    <input type="month" name="month" value="{{ $month }}"
-                           class="bg-transparent text-base font-semibold text-slate-700 outline-none"
-                           onchange="this.form.submit()">
-                </form>
+            <a href="{{ route('budget.history', ['month' => $prevMonth]) }}"
+               class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition active:scale-90">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+
+            <div class="text-center">
+                <h1 class="text-xl font-bold text-slate-800">{{ $monthLabel }}</h1>
+                <p class="text-xs text-slate-400 mt-0.5">帳目記錄</p>
             </div>
+
+            <a href="{{ route('budget.history', ['month' => $nextMonth]) }}"
+               class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition active:scale-90">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
         </div>
 
         {{-- 本月統計 --}}

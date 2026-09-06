@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Budget;
 use App\Http\Controllers\Controller;
 use App\Models\Budget\Category;
 use App\Models\Budget\Transaction;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,9 +15,13 @@ class TransactionController extends Controller
     public function index(Request $request): View
     {
         $user = auth('budget')->user();
-        $month = $request->input('month', now()->format('Y-m'));
-
-        [$year, $mon] = explode('-', $month);
+        $current = $this->parseMonth($request->input('month'));
+        $month = $current->format('Y-m');
+        $prevMonth = $current->copy()->subMonth()->format('Y-m');
+        $nextMonth = $current->copy()->addMonth()->format('Y-m');
+        $monthLabel = $current->format('Y 年 n 月');
+        $year = $current->year;
+        $mon = $current->month;
 
         $transactions = Transaction::with('category')
             ->where('user_id', $user->id)
@@ -38,9 +43,24 @@ class TransactionController extends Controller
             'monthlyExpense',
             'monthlyIncome',
             'month',
+            'prevMonth',
+            'nextMonth',
+            'monthLabel',
             'categories',
             'defaults',
         ));
+    }
+
+    private function parseMonth(mixed $month): Carbon
+    {
+        if (is_string($month) && preg_match('/^\d{4}-\d{2}$/', $month)) {
+            try {
+                return Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+            } catch (\Throwable) {
+            }
+        }
+
+        return now()->startOfMonth();
     }
 
     public function store(Request $request): JsonResponse
