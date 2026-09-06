@@ -98,14 +98,14 @@
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0 translate-y-2"
          x-transition:enter-end="opacity-100 translate-y-0"
-         class="mx-4 mt-4 mb-2">
+         class="mx-4 mt-4 mb-2 pb-24">
 
         <div class="mb-3 flex items-center justify-between">
             <h2 class="text-sm font-semibold text-slate-700" x-text="formatSelectedDate()"></h2>
             <div class="flex items-center gap-3">
                 <button @click="openSheet(selectedDate)"
                         class="text-xs font-semibold text-indigo-600">+ 新增</button>
-                <button @click="selectedDate = null"
+                <button @click="selectedDate = null; resetAllSwipe()"
                         class="text-xs text-slate-400">關閉</button>
             </div>
         </div>
@@ -138,7 +138,7 @@
                         </button>
                     </div>
 
-                    <div class="relative flex items-start gap-3 bg-white px-4 py-3 select-none"
+                    <div class="relative flex min-h-[64px] items-start gap-3 bg-white px-4 py-3 select-none"
                          :style="{
                              transform: `translateX(${swipeX(apt.id)}px)`,
                              transition: swipeDragging(apt.id) ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)'
@@ -162,7 +162,7 @@
     </div>
 
     {{-- 未選日期：本月清單 --}}
-    <div x-show="!selectedDate" class="mx-4 mt-4">
+    <div x-show="!selectedDate" class="mx-4 mt-4 pb-24">
         <h2 class="mb-3 text-sm font-semibold text-slate-500 uppercase tracking-wide">
             本月所有預約
             <span class="ml-1 text-indigo-600" x-text="'(' + monthAppointmentCount + ')'"></span>
@@ -197,7 +197,7 @@
                         </button>
                     </div>
 
-                    <div class="relative flex items-start gap-3 bg-white px-4 py-3 select-none"
+                    <div class="relative flex min-h-[64px] items-start gap-3 bg-white px-4 py-3 select-none"
                          :style="{
                              transform: `translateX(${swipeX(apt.id)}px)`,
                              transition: swipeDragging(apt.id) ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)'
@@ -561,6 +561,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         },
 
         selectDate(date) {
+            this.resetAllSwipe()
             this.selectedDate = this.selectedDate === date ? null : date
         },
 
