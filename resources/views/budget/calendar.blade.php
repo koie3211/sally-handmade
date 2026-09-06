@@ -7,7 +7,7 @@
      x-init="init()">
 
     {{-- 頂部：月份導覽（僅保留導覽，不含日期格）--}}
-    <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 px-4 py-4 safe-area-top">
+    <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 px-4 pb-4 safe-area-top-compact">
         <div class="flex items-center justify-between">
             <button @click="prevMonth()"
                     class="flex h-9 w-9 items-center justify-center rounded-full text-indigo-200 hover:bg-indigo-700/50 transition active:scale-90">
@@ -260,7 +260,7 @@
                                placeholder="預約名稱"
                                maxlength="100"
                                required
-                               class="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                               class="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-3 text-base text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                     </div>
 
                     {{-- 開始/結束時間 --}}
@@ -270,14 +270,14 @@
                             <input type="datetime-local"
                                    x-model="form.start_at"
                                    required
-                                   class="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                                   class="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-base text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                         </div>
                         <div>
                             <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">結束時間</label>
                             <input type="datetime-local"
                                    x-model="form.end_at"
                                    :min="form.start_at"
-                                   class="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                                   class="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-base text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                         </div>
                     </div>
 

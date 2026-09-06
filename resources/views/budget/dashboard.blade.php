@@ -6,7 +6,7 @@
 <div x-data="addTransaction({{ $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'icon' => $c->icon, 'color' => $c->color, 'type' => $c->type])->toJson() }}, @js($defaults))" x-init="openSheet()">
 
     {{-- 頂部：今日概覽 --}}
-    <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 px-6 pb-8 pt-12 text-white safe-area-top">
+    <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 px-6 pb-8 text-white safe-area-top">
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-indigo-200">{{ now()->locale('zh_TW')->translatedFormat('n月j日，l') }}</p>

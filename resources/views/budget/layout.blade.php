@@ -2,7 +2,7 @@
 <html lang="zh-TW" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', '荷包') · 家庭記帳</title>
 
@@ -49,9 +49,27 @@
 
     {{-- 自訂 CSS --}}
     <style>
-        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
-        .safe-area-top    { padding-top:    env(safe-area-inset-top);    }
-        .nav-bar          { height: calc(4rem + env(safe-area-inset-bottom)); }
+        html.h-full, body.h-full {
+            height: 100%;
+            height: 100dvh;
+            overflow-x: hidden;
+        }
+        /* 頂欄：3rem 標題列 + 瀏海／Dynamic Island，避免與 Tailwind 互蓋 */
+        .safe-area-top {
+            padding-top: calc(3rem + env(safe-area-inset-top, 0px)) !important;
+        }
+        .safe-area-top-compact {
+            padding-top: calc(1rem + env(safe-area-inset-top, 0px)) !important;
+        }
+        .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .nav-bar {
+            height: auto;
+            min-height: 4rem;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        #app {
+            padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+        }
         .amount-input     { font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -439,7 +457,7 @@
 </head>
 <body class="h-full bg-slate-50 text-slate-800 antialiased">
 
-<main class="min-h-full pb-20" id="app">
+<main class="min-h-full" id="app">
     @yield('content')
 </main>
 

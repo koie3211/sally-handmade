@@ -6,7 +6,7 @@
 <div>
 
     {{-- 頂部標題 --}}
-    <div class="bg-white px-5 pt-12 pb-4 shadow-sm safe-area-top">
+    <div class="bg-white px-5 pb-4 shadow-sm safe-area-top">
         <h1 class="text-xl font-bold text-slate-800">設定</h1>
     </div>
 

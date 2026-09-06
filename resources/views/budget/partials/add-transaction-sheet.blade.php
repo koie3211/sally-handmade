@@ -148,7 +148,7 @@
                 <div class="rounded-xl bg-slate-50 px-3 py-2">
                     <label class="mb-0.5 block text-xs text-slate-400">日期</label>
                     <input type="date" x-model="date"
-                           class="w-full bg-transparent text-sm font-medium text-slate-700 outline-none">
+                           class="w-full bg-transparent text-base font-medium text-slate-700 outline-none">
                 </div>
                 <div class="rounded-xl bg-slate-50 px-3 py-2">
                     <label class="mb-0.5 block text-xs text-slate-400">備註</label>

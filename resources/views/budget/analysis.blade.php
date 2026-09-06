@@ -6,12 +6,12 @@
 <div x-data="analysisPage()" x-init="loadData()">
 
     {{-- 頂部標題 --}}
-    <div class="bg-white px-5 pt-12 pb-4 shadow-sm safe-area-top">
+    <div class="bg-white px-5 pb-4 shadow-sm safe-area-top">
         <div class="flex items-center justify-between">
             <h1 class="text-xl font-bold text-slate-800">消費分析</h1>
             <div class="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-1.5">
                 <input type="month" x-model="month" @change="loadData()"
-                       class="bg-transparent text-sm font-semibold text-slate-700 outline-none">
+                       class="bg-transparent text-base font-semibold text-slate-700 outline-none">
             </div>
         </div>
     </div>
@@ -47,7 +47,7 @@
         {{-- 近 6 個月趨勢 --}}
         <div class="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
             <h3 class="mb-3 text-sm font-semibold text-slate-600">近 6 個月趨勢</h3>
-            <div class="h-48">
+            <div class="relative h-48 overflow-hidden">
                 <canvas id="trendChart"></canvas>
             </div>
         </div>
@@ -57,7 +57,7 @@
             <h3 class="mb-3 text-sm font-semibold text-slate-600">支出分類佔比</h3>
             <template x-if="data.expense_by_category && data.expense_by_category.length > 0">
                 <div>
-                    <div class="mx-auto h-44 w-44">
+                    <div class="relative mx-auto h-44 w-44 overflow-hidden">
                         <canvas id="categoryChart"></canvas>
                     </div>
                     <div class="mt-4 space-y-2">

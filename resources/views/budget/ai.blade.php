@@ -6,7 +6,7 @@
 <div x-data="aiPage()">
 
     {{-- 頂部標題 --}}
-    <div class="bg-white px-5 pt-12 pb-4 shadow-sm safe-area-top">
+    <div class="bg-white px-5 pb-4 shadow-sm safe-area-top">
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-xl font-bold text-slate-800">AI 消費建議</h1>

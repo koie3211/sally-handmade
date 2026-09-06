@@ -6,14 +6,14 @@
 <div x-data="addTransaction({{ $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'icon' => $c->icon, 'color' => $c->color, 'type' => $c->type])->toJson() }}, @js($defaults))">
 
     {{-- 頂部標題 --}}
-    <div class="bg-white px-5 pt-12 pb-4 shadow-sm safe-area-top">
+    <div class="bg-white px-5 pb-4 shadow-sm safe-area-top">
         <div class="flex items-center justify-between">
             <h1 class="text-xl font-bold text-slate-800">帳目記錄</h1>
             {{-- 月份切換 --}}
             <div class="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-1.5">
                 <form method="GET" action="{{ route('budget.history') }}">
                     <input type="month" name="month" value="{{ $month }}"
-                           class="bg-transparent text-sm font-semibold text-slate-700 outline-none"
+                           class="bg-transparent text-base font-semibold text-slate-700 outline-none"
                            onchange="this.form.submit()">
                 </form>
             </div>
