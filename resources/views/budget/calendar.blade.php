@@ -274,30 +274,33 @@
              x-transition:leave-end="opacity-0"
              @click.self="closeSheet()">
 
-            <div class="w-full rounded-t-3xl bg-white pb-safe shadow-2xl"
+            <div class="w-full overflow-y-auto overscroll-contain rounded-t-3xl bg-white pb-safe shadow-2xl"
+                 style="max-height: calc(100svh - env(safe-area-inset-top, 0px) - 0.5rem); -webkit-overflow-scrolling: touch;"
                  :style="{ transform: `translateY(${dragY > 0 ? dragY : 0}px)`, transition: dragging ? 'none' : 'transform 0.3s cubic-bezier(0.32,0.72,0,1)' }"
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="translate-y-full"
                  x-transition:enter-end="translate-y-0">
 
-                {{-- 拖曳把手 --}}
-                <div class="flex justify-center pt-3 pb-1 cursor-grab"
-                     @touchstart.prevent="dragStart($event)"
-                     @touchmove.prevent="dragMove($event)"
-                     @touchend="dragEnd()">
-                    <div class="h-1 w-10 rounded-full bg-slate-300"></div>
-                </div>
+                <div class="sticky top-0 z-10 bg-white">
+                    {{-- 拖曳把手 --}}
+                    <div class="flex justify-center pt-3 pb-1 cursor-grab"
+                         @touchstart.prevent="dragStart($event)"
+                         @touchmove.prevent="dragMove($event)"
+                         @touchend="dragEnd()">
+                        <div class="h-1 w-10 rounded-full bg-slate-300"></div>
+                    </div>
 
-                <div class="flex items-center justify-between px-5 pb-2 pt-1">
-                    <h2 class="text-lg font-bold text-slate-800"
-                        x-text="editingId ? '編輯預約' : '新增預約'"></h2>
-                    <button type="button" @click="closeSheet()"
-                            aria-label="關閉"
-                            class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 active:scale-90">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
+                    <div class="flex items-center justify-between px-5 pb-2 pt-1">
+                        <h2 class="text-lg font-bold text-slate-800"
+                            x-text="editingId ? '編輯預約' : '新增預約'"></h2>
+                        <button type="button" @click="closeSheet()"
+                                aria-label="關閉"
+                                class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 active:scale-90">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <form @submit.prevent="submitAppointment()" class="px-5 pb-8 space-y-4">

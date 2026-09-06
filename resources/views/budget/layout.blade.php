@@ -49,10 +49,16 @@
 
     {{-- 自訂 CSS --}}
     <style>
-        html.h-full, body.h-full {
-            height: 100%;
-            height: 100dvh;
+        html.h-full {
+            min-height: 100%;
+            background-color: #f8fafc;
+        }
+        body.h-full {
+            height: auto;
+            min-height: 100%;
+            min-height: 100svh;
             overflow-x: hidden;
+            overscroll-behavior-y: none;
         }
         /* 頂欄：3rem 標題列 + 瀏海／Dynamic Island，避免與 Tailwind 互蓋 */
         .safe-area-top {
@@ -66,8 +72,21 @@
             height: auto;
             min-height: 4rem;
             padding-bottom: env(safe-area-inset-bottom, 0px);
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+        /* 遮住 iOS 動態視窗偶爾在 fixed 元素下方留下的空隙 */
+        .nav-bar::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 0;
+            left: 0;
+            height: 3rem;
+            background: white;
         }
         #app {
+            min-height: 100svh;
             padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
         }
         .amount-input     { font-size: 2.5rem; font-weight: 700; letter-spacing: -0.02em; }
