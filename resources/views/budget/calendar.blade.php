@@ -263,21 +263,63 @@
                                class="mt-1.5 w-full rounded-xl border border-slate-200 px-4 py-3 text-base text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
                     </div>
 
-                    {{-- 開始/結束時間 --}}
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">開始時間</label>
-                            <input type="datetime-local"
-                                   x-model="form.start_at"
-                                   required
-                                   class="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-base text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                    {{-- 日期 --}}
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">日期</label>
+                        <div class="mt-1.5 flex items-center justify-between">
+                            <button type="button" @click="shiftFormDate(-1)"
+                                    class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition active:scale-90">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </button>
+                            <p class="text-base font-semibold text-slate-800" x-text="formatFormDate()"></p>
+                            <button type="button" @click="shiftFormDate(1)"
+                                    class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 transition active:scale-90">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
                         </div>
-                        <div>
-                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">結束時間</label>
-                            <input type="datetime-local"
-                                   x-model="form.end_at"
-                                   :min="form.start_at"
-                                   class="mt-1.5 w-full rounded-xl border border-slate-200 px-3 py-3 text-base text-slate-800 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                    </div>
+
+                    {{-- 開始時間 --}}
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">開始時間</label>
+                        <div class="mt-1.5 grid grid-cols-4 gap-1.5 max-h-40 overflow-y-auto no-scrollbar">
+                            <template x-for="slot in startTimeSlots" :key="'start-'+slot">
+                                <button type="button"
+                                        @click="selectStartTime(slot)"
+                                        :data-start-selected="form.start_time === slot"
+                                        :class="form.start_time === slot ? 'ring-2 ring-indigo-500 bg-indigo-50 text-indigo-700' : 'bg-slate-50 text-slate-600'"
+                                        class="rounded-xl py-2 text-sm font-semibold transition active:scale-95"
+                                        x-text="slot">
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- 結束時間 --}}
+                    <div>
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wide">結束時間（選填）</label>
+                        <div class="mt-1.5 grid grid-cols-4 gap-1.5 max-h-40 overflow-y-auto no-scrollbar">
+                            <button type="button"
+                                    @click="form.end_time = ''"
+                                    :class="!form.end_time ? 'ring-2 ring-indigo-500 bg-indigo-50 text-indigo-700' : 'bg-slate-50 text-slate-500'"
+                                    class="rounded-xl py-2 text-sm font-semibold transition active:scale-95">
+                                不設定
+                            </button>
+                            <template x-for="slot in endTimeSlots" :key="'end-'+slot">
+                                <button type="button"
+                                        @click="selectEndTime(slot)"
+                                        :disabled="isEndDisabled(slot)"
+                                        :class="form.end_time === slot
+                                            ? 'ring-2 ring-indigo-500 bg-indigo-50 text-indigo-700'
+                                            : (isEndDisabled(slot) ? 'bg-slate-50 text-slate-300' : 'bg-slate-50 text-slate-600')"
+                                        class="rounded-xl py-2 text-sm font-semibold transition active:scale-95 disabled:cursor-not-allowed"
+                                        x-text="slot">
+                                </button>
+                            </template>
                         </div>
                     </div>
 
@@ -296,7 +338,7 @@
 
                     {{-- 送出 --}}
                     <button type="submit"
-                            :disabled="submitting"
+                            :disabled="submitting || !form.date || !form.start_time"
                             class="w-full rounded-2xl bg-indigo-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-700 active:scale-95 disabled:opacity-50">
                         <span x-text="submitting ? '儲存中…' : (editingId ? '儲存變更' : '新增預約')"></span>
                     </button>
@@ -325,7 +367,8 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         editingId: null,
         submitting: false,
         errorMsg: '',
-        form: { title: '', start_at: '', end_at: '', note: '' },
+        form: { title: '', date: '', start_time: '09:00', end_time: '', note: '' },
+        timeSlots: [],
 
         // 拖曳收起
         dragging: false,
@@ -333,6 +376,13 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         dragStartY: 0,
 
         init() {
+            const slots = []
+            for (let h = 0; h < 24; h++) {
+                for (const m of [0, 30]) {
+                    slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+                }
+            }
+            this.timeSlots = slots
             this.buildCalendar()
         },
 
@@ -343,6 +393,14 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         get dayAppointments() {
             if (!this.selectedDate) return []
             return this.appointments.filter(a => a.start_date === this.selectedDate)
+        },
+
+        get startTimeSlots() {
+            return this.mergeSlot(this.timeSlots, this.form.start_time)
+        },
+
+        get endTimeSlots() {
+            return this.mergeSlot(this.timeSlots, this.form.end_time)
         },
 
         buildCalendar() {
@@ -428,31 +486,102 @@ function calendarApp(initialAppointments, initYear, initMonth) {
 
         // ── Sheet ─────────────────────────────────────────
 
+        mergeSlot(slots, extra) {
+            if (!extra || slots.includes(extra)) return slots
+            return [...slots, extra].sort()
+        },
+
+        toDateStr(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+        },
+
+        splitDateTime(value) {
+            if (!value) return { date: '', time: '' }
+            const [date, time = ''] = value.split('T')
+            return { date: date ?? '', time: time.slice(0, 5) }
+        },
+
+        composeDateTime(date, time) {
+            if (!date || !time) return ''
+            return `${date}T${time}`
+        },
+
+        formatFormDate() {
+            if (!this.form.date) return ''
+            const d = new Date(this.form.date + 'T00:00:00')
+            const weekNames = ['日', '一', '二', '三', '四', '五', '六']
+            return `${d.getMonth() + 1} 月 ${d.getDate()} 日（${weekNames[d.getDay()]}）`
+        },
+
+        shiftFormDate(days) {
+            const d = new Date(this.form.date + 'T00:00:00')
+            d.setDate(d.getDate() + days)
+            this.form.date = this.toDateStr(d)
+        },
+
+        addThirty(time) {
+            const [h, m] = time.split(':').map(Number)
+            const total = h * 60 + m + 30
+            if (total >= 24 * 60) return ''
+            return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
+        },
+
+        selectStartTime(time) {
+            this.form.start_time = time
+            if (!this.form.end_time) {
+                this.form.end_time = this.addThirty(time)
+            } else if (this.form.end_time < time) {
+                this.form.end_time = this.addThirty(time)
+            }
+        },
+
+        selectEndTime(time) {
+            if (this.isEndDisabled(time)) return
+            this.form.end_time = this.form.end_time === time ? '' : time
+        },
+
+        isEndDisabled(time) {
+            return Boolean(this.form.start_time && time < this.form.start_time)
+        },
+
+        scrollTimeIntoView() {
+            this.$nextTick(() => {
+                document.querySelector('[data-start-selected="true"]')
+                    ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+            })
+        },
+
         openSheet(date = null) {
             this.editingId = null
             this.errorMsg  = ''
-            const defaultDate = date ?? this.selectedDate ?? new Date().toISOString().substring(0, 10)
+            const defaultDate = date ?? this.selectedDate ?? this.toDateStr(new Date())
             this.form = {
-                title:    '',
-                start_at: defaultDate + 'T09:00',
-                end_at:   '',
-                note:     '',
+                title:      '',
+                date:       defaultDate,
+                start_time: '09:00',
+                end_time:   '09:30',
+                note:       '',
             }
             this.sheetOpen = true
             this.dragY     = 0
+            this.scrollTimeIntoView()
         },
 
         openEditSheet(apt) {
             this.editingId = apt.id
             this.errorMsg  = ''
+            const start = this.splitDateTime(apt.start_at)
+            const end   = this.splitDateTime(apt.end_at)
             this.form = {
-                title:    apt.title,
-                start_at: apt.start_at,
-                end_at:   apt.end_at ?? '',
-                note:     apt.note   ?? '',
+                title:      apt.title,
+                date:       start.date || apt.start_date || this.toDateStr(new Date()),
+                start_time: start.time || apt.start_time || '09:00',
+                end_time:   end.time || apt.end_time || '',
+                note:       apt.note ?? '',
             }
             this.sheetOpen = true
             this.dragY     = 0
+            this.scrollTimeIntoView()
         },
 
         closeSheet() {
@@ -461,12 +590,18 @@ function calendarApp(initialAppointments, initYear, initMonth) {
 
         async submitAppointment() {
             this.errorMsg  = ''
+            if (!this.form.date || !this.form.start_time) {
+                this.errorMsg = '請選擇日期與開始時間'
+                return
+            }
             this.submitting = true
             try {
                 const body = {
                     title:    this.form.title,
-                    start_at: this.form.start_at,
-                    end_at:   this.form.end_at || null,
+                    start_at: this.composeDateTime(this.form.date, this.form.start_time),
+                    end_at:   this.form.end_time
+                        ? this.composeDateTime(this.form.date, this.form.end_time)
+                        : null,
                     note:     this.form.note   || null,
                 }
 
