@@ -91,6 +91,8 @@
         </div>
     </div>
 
+    <p class="px-5 pt-3 text-xs text-slate-400">← 左滑編輯　右滑刪除 →</p>
+
     {{-- 選中日期清單面板 --}}
     <div x-show="selectedDate"
          x-transition:enter="transition ease-out duration-200"
@@ -116,25 +118,44 @@
 
         <div class="space-y-2">
             <template x-for="apt in dayAppointments" :key="apt.id">
-                <div class="flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100"
-                     @click="openEditSheet(apt)">
-                    {{-- 時間欄 --}}
-                    <div class="flex-shrink-0 w-14 text-right">
-                        <p class="text-xs font-semibold text-indigo-600" x-text="apt.start_time"></p>
-                        <p class="text-xs text-slate-400" x-text="apt.end_time" x-show="apt.end_time"></p>
+                <div class="relative overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100"
+                     style="min-height: 64px">
+                    <div class="absolute inset-0 flex">
+                        <button @click="confirmDelete(apt.id); resetSwipe(apt.id)"
+                                class="flex w-20 flex-shrink-0 flex-col items-center justify-center gap-1 bg-rose-500 text-white">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <span class="text-xs font-semibold">刪除</span>
+                        </button>
+                        <div class="flex-1"></div>
+                        <button @click="openEditSheet(apt); resetSwipe(apt.id)"
+                                class="flex w-20 flex-shrink-0 flex-col items-center justify-center gap-1 bg-indigo-500 text-white">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            <span class="text-xs font-semibold">編輯</span>
+                        </button>
                     </div>
-                    {{-- 標題/備註 --}}
-                    <div class="min-w-0 flex-1 border-l-2 border-indigo-300 pl-3">
-                        <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
-                        <p class="text-xs text-slate-400 truncate mt-0.5" x-text="apt.note" x-show="apt.note"></p>
+
+                    <div class="relative flex items-start gap-3 bg-white px-4 py-3 select-none"
+                         :style="{
+                             transform: `translateX(${swipeX(apt.id)}px)`,
+                             transition: swipeDragging(apt.id) ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)'
+                         }"
+                         @touchstart="swipeStart(apt.id, $event)"
+                         @touchmove="swipeMove(apt.id, $event)"
+                         @touchend="swipeEnd(apt.id)"
+                         @click="resetAllSwipe()">
+                        <div class="flex-shrink-0 w-14 text-right">
+                            <p class="text-xs font-semibold text-indigo-600" x-text="apt.start_time"></p>
+                            <p class="text-xs text-slate-400" x-text="apt.end_time" x-show="apt.end_time"></p>
+                        </div>
+                        <div class="min-w-0 flex-1 border-l-2 border-indigo-300 pl-3">
+                            <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
+                            <p class="text-xs text-slate-400 truncate mt-0.5" x-text="apt.note" x-show="apt.note"></p>
+                        </div>
                     </div>
-                    {{-- 刪除 --}}
-                    <button class="flex-shrink-0 text-slate-300 hover:text-rose-400 transition p-1"
-                            @click.stop="confirmDelete(apt.id)">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
                 </div>
             </template>
         </div>
@@ -156,26 +177,48 @@
 
         <div class="space-y-2">
             <template x-for="apt in appointments" :key="apt.id">
-                <div class="flex items-start gap-3 rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-100"
-                     @click="openEditSheet(apt)">
-                    <div class="flex-shrink-0 rounded-xl bg-indigo-50 px-2 py-1 text-center min-w-[3rem]">
-                        <p class="text-lg font-bold text-indigo-600 leading-none"
-                           x-text="apt.start_at.substring(8,10)"></p>
-                        <p class="text-xs text-indigo-400"
-                           x-text="parseInt(apt.start_at.substring(5,7)) + ' 月'"></p>
+                <div class="relative overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100"
+                     style="min-height: 64px">
+                    <div class="absolute inset-0 flex">
+                        <button @click="confirmDelete(apt.id); resetSwipe(apt.id)"
+                                class="flex w-20 flex-shrink-0 flex-col items-center justify-center gap-1 bg-rose-500 text-white">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            <span class="text-xs font-semibold">刪除</span>
+                        </button>
+                        <div class="flex-1"></div>
+                        <button @click="openEditSheet(apt); resetSwipe(apt.id)"
+                                class="flex w-20 flex-shrink-0 flex-col items-center justify-center gap-1 bg-indigo-500 text-white">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            <span class="text-xs font-semibold">編輯</span>
+                        </button>
                     </div>
-                    <div class="min-w-0 flex-1">
-                        <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
-                        <p class="text-xs text-slate-400 mt-0.5"
-                           x-text="apt.start_time + (apt.end_time ? ' – ' + apt.end_time : '')"></p>
-                        <p class="text-xs text-slate-400 truncate" x-text="apt.note" x-show="apt.note"></p>
+
+                    <div class="relative flex items-start gap-3 bg-white px-4 py-3 select-none"
+                         :style="{
+                             transform: `translateX(${swipeX(apt.id)}px)`,
+                             transition: swipeDragging(apt.id) ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)'
+                         }"
+                         @touchstart="swipeStart(apt.id, $event)"
+                         @touchmove="swipeMove(apt.id, $event)"
+                         @touchend="swipeEnd(apt.id)"
+                         @click="resetAllSwipe()">
+                        <div class="flex-shrink-0 rounded-xl bg-indigo-50 px-2 py-1 text-center min-w-[3rem]">
+                            <p class="text-lg font-bold text-indigo-600 leading-none"
+                               x-text="apt.start_at.substring(8,10)"></p>
+                            <p class="text-xs text-indigo-400"
+                               x-text="parseInt(apt.start_at.substring(5,7)) + ' 月'"></p>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
+                            <p class="text-xs text-slate-400 mt-0.5"
+                               x-text="apt.start_time + (apt.end_time ? ' – ' + apt.end_time : '')"></p>
+                            <p class="text-xs text-slate-400 truncate" x-text="apt.note" x-show="apt.note"></p>
+                        </div>
                     </div>
-                    <button class="flex-shrink-0 text-slate-300 hover:text-rose-400 transition p-1"
-                            @click.stop="confirmDelete(apt.id)">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
                 </div>
             </template>
         </div>
@@ -245,9 +288,16 @@
                     <div class="h-1 w-10 rounded-full bg-slate-300"></div>
                 </div>
 
-                <div class="px-5 pb-2 pt-1">
+                <div class="flex items-center justify-between px-5 pb-2 pt-1">
                     <h2 class="text-lg font-bold text-slate-800"
                         x-text="editingId ? '編輯預約' : '新增預約'"></h2>
+                    <button type="button" @click="closeSheet()"
+                            aria-label="關閉"
+                            class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 active:scale-90">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
 
                 <form @submit.prevent="submitAppointment()" class="px-5 pb-8 space-y-4">
@@ -357,6 +407,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         appointments: initialAppointments,
         selectedDate: null,
         calendarDays: [],
+        swipe: {},
 
         // 刪除
         deletingId: null,
@@ -393,6 +444,74 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         get dayAppointments() {
             if (!this.selectedDate) return []
             return this.appointments.filter(a => a.start_date === this.selectedDate)
+        },
+
+        swipeX(id) {
+            return this.swipe[id]?.x ?? 0
+        },
+
+        swipeDragging(id) {
+            return this.swipe[id]?.dragging ?? false
+        },
+
+        swipeStart(id, event) {
+            const touch = event.touches ? event.touches[0] : event
+            this.swipe[id] = {
+                x: 0,
+                startX: touch.clientX,
+                startY: touch.clientY,
+                dragging: false,
+                locked: null,
+            }
+        },
+
+        swipeMove(id, event) {
+            const state = this.swipe[id]
+            if (!state) return
+
+            const touch = event.touches ? event.touches[0] : event
+            const dx = touch.clientX - state.startX
+            const dy = touch.clientY - state.startY
+
+            if (!state.locked) {
+                if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+                state.locked = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical'
+            }
+
+            if (state.locked === 'vertical') return
+
+            event.preventDefault()
+            state.dragging = true
+            state.x = Math.max(-90, Math.min(90, dx))
+        },
+
+        swipeEnd(id) {
+            const state = this.swipe[id]
+            if (!state) return
+
+            state.dragging = false
+            if (state.locked === 'vertical') {
+                state.x = 0
+                return
+            }
+
+            if (state.x < -60) {
+                state.x = -80
+            } else if (state.x > 60) {
+                state.x = 80
+            } else {
+                state.x = 0
+            }
+        },
+
+        resetSwipe(id) {
+            if (this.swipe[id]) this.swipe[id].x = 0
+        },
+
+        resetAllSwipe() {
+            Object.keys(this.swipe).forEach(id => {
+                this.swipe[id].x = 0
+            })
         },
 
         get startTimeSlots() {
