@@ -93,12 +93,12 @@
                                 </div>
                                 <div class="mt-1 space-y-0.5 text-center">
                                     <p x-show="day.income > 0"
-                                       class="truncate text-[10px] font-semibold leading-tight text-emerald-600"
-                                       x-text="'+' + compactMoney(day.income)">
+                                       class="whitespace-nowrap text-[9px] font-semibold leading-tight tracking-tight text-emerald-600"
+                                       x-text="'+' + fmt(day.income)">
                                     </p>
                                     <p x-show="day.expense > 0"
-                                       class="truncate text-[10px] font-semibold leading-tight text-rose-500"
-                                       x-text="'-' + compactMoney(day.expense)">
+                                       class="whitespace-nowrap text-[9px] font-semibold leading-tight tracking-tight text-rose-500"
+                                       x-text="'-' + fmt(day.expense)">
                                     </p>
                                 </div>
                             </div>
@@ -251,13 +251,6 @@ function analysisPage() {
 
         fmt(num) {
             return Number(num).toLocaleString('zh-TW')
-        },
-
-        compactMoney(num) {
-            const value = Number(num)
-            if (value >= 1000000) return '$' + (value / 1000000).toFixed(1).replace(/\.0$/, '') + 'M'
-            if (value >= 1000) return '$' + (value / 1000).toFixed(1).replace(/\.0$/, '') + 'K'
-            return '$' + this.fmt(value)
         },
 
         monthKey() {
