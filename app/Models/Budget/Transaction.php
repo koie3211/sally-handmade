@@ -12,6 +12,7 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'category_id',
+        'appointment_id',
         'amount',
         'type',
         'note',
@@ -22,6 +23,7 @@ class Transaction extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'appointment_id' => 'integer',
             'transaction_date' => 'date',
         ];
     }
@@ -34,6 +36,11 @@ class Transaction extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function appointment(): BelongsTo
+    {
+        return $this->belongsTo(Appointment::class);
     }
 
     /**

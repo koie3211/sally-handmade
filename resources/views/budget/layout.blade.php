@@ -158,6 +158,17 @@
                 categories,
                 editingId: null,        // 編輯模式的交易 ID，null = 新增模式
 
+                // ── 行事曆關聯狀態 ──────────────────────────
+                appointmentExpanded: false,
+                appointmentAction: 'none',
+                appointmentId: null,
+                availableAppointments: [],
+                appointmentsLoading: false,
+                appointmentTitle: '',
+                appointmentStartTime: '09:00',
+                appointmentEndTime: '09:30',
+                appointmentTimeSlots: [],
+
                 // ── 刪除確認狀態 ─────────────────────────────
                 confirmDeleteId: null,  // 等待確認刪除的交易 ID
                 deleting: false,
@@ -176,6 +187,22 @@
                 scannerAnimation: null,
 
                 // ── 計算屬性 ────────────────────────────────
+                init() {
+                    const slots = []
+                    for (let total = 8 * 60; total <= 20 * 60; total += 5) {
+                        const hours = Math.floor(total / 60)
+                        const minutes = total % 60
+                        slots.push(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`)
+                    }
+                    this.appointmentTimeSlots = slots
+
+                    this.$watch('date', () => {
+                        if (this.appointmentExpanded && this.appointmentAction === 'existing') {
+                            this.loadAvailableAppointments()
+                        }
+                    })
+                },
+
                 get expenseCategories() {
                     return this.categories.filter(c => c.type === 'expense')
                 },
@@ -184,6 +211,17 @@
                 },
                 get filteredCategories() {
                     return this.type === 'expense' ? this.expenseCategories : this.incomeCategories
+                },
+                get selectedCategory() {
+                    return this.categories.find(category => category.id === this.categoryId)
+                },
+                get appointmentReady() {
+                    if (!this.appointmentExpanded) return true
+                    if (this.appointmentAction === 'existing') return Boolean(this.appointmentId)
+                    if (this.appointmentAction === 'create') {
+                        return Boolean(this.appointmentTitle.trim() && this.appointmentStartTime)
+                    }
+                    return true
                 },
 
                 // ── 表單方法 ─────────────────────────────────
@@ -204,6 +242,17 @@
                     this.loading    = false
                     this.dragY      = 0
                     this.open       = true
+                    this.appointmentExpanded = Boolean(tx.appointment_id)
+                    this.appointmentAction = tx.appointment_id ? 'existing' : 'none'
+                    this.appointmentId = tx.appointment_id ?? null
+                    this.availableAppointments = []
+                    this.appointmentTitle = ''
+                    this.appointmentStartTime = '09:00'
+                    this.appointmentEndTime = '09:30'
+
+                    if (this.appointmentExpanded) {
+                        this.loadAvailableAppointments()
+                    }
                 },
 
                 categoryForType(type) {
@@ -219,6 +268,72 @@
                     this.categoryId = this.categoryForType(type)
                 },
 
+                toggleAppointment() {
+                    this.appointmentExpanded = !this.appointmentExpanded
+
+                    if (!this.appointmentExpanded) {
+                        this.appointmentAction = 'none'
+                        return
+                    }
+
+                    this.appointmentAction = 'existing'
+                    this.loadAvailableAppointments()
+                },
+
+                setAppointmentAction(action) {
+                    this.appointmentAction = action
+
+                    if (action === 'existing') {
+                        this.loadAvailableAppointments()
+                        return
+                    }
+
+                    if (action === 'create' && !this.appointmentTitle) {
+                        this.appointmentTitle = this.note.trim()
+                            || this.selectedCategory?.name
+                            || '記帳預約'
+                    }
+                },
+
+                async loadAvailableAppointments() {
+                    if (!this.date) return
+
+                    const requestedDate = this.date
+                    const params = new URLSearchParams({ date: requestedDate })
+                    if (this.appointmentId) params.set('include', this.appointmentId)
+
+                    this.appointmentsLoading = true
+                    try {
+                        const response = await window.budgetUtils.fetchJson(`/api/calendar/available?${params}`)
+                        if (this.date === requestedDate) {
+                            this.availableAppointments = response.data
+                            if (
+                                this.appointmentId
+                                && !response.data.some(appointment => appointment.id === this.appointmentId)
+                            ) {
+                                this.appointmentId = null
+                            }
+                        }
+                    } catch (error) {
+                        this.availableAppointments = []
+                        console.error(error)
+                    } finally {
+                        this.appointmentsLoading = false
+                    }
+                },
+
+                appointmentPayload() {
+                    const action = this.appointmentExpanded ? this.appointmentAction : 'none'
+
+                    return {
+                        appointment_action: action,
+                        appointment_id: action === 'existing' ? this.appointmentId : null,
+                        appointment_title: action === 'create' ? this.appointmentTitle : null,
+                        appointment_start_time: action === 'create' ? this.appointmentStartTime : null,
+                        appointment_end_time: action === 'create' ? (this.appointmentEndTime || null) : null,
+                    }
+                },
+
                 reset() {
                     this.type = this.defaultType
                     this.amount = ''
@@ -226,10 +341,18 @@
                     this.note = ''
                     this.date = new Date().toISOString().slice(0, 10)
                     this.loading = false
+                    this.appointmentExpanded = false
+                    this.appointmentAction = 'none'
+                    this.appointmentId = null
+                    this.availableAppointments = []
+                    this.appointmentsLoading = false
+                    this.appointmentTitle = ''
+                    this.appointmentStartTime = '09:00'
+                    this.appointmentEndTime = '09:30'
                 },
 
                 async submit() {
-                    if (!this.amount || !this.categoryId) return
+                    if (!this.amount || !this.categoryId || !this.appointmentReady) return
                     this.loading = true
                     try {
                         const isEdit = !!this.editingId
@@ -243,6 +366,7 @@
                                     type: this.type,
                                     note: this.note,
                                     transaction_date: this.date,
+                                    ...this.appointmentPayload(),
                                 }),
                             }
                         )

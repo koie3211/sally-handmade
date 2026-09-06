@@ -7,6 +7,7 @@ use App\Models\Budget\Appointment;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class CalendarController extends Controller
@@ -77,12 +78,49 @@ class CalendarController extends Controller
         return response()->json(['data' => $appointments]);
     }
 
+    public function available(Request $request): JsonResponse
+    {
+        $userId = auth('budget')->id();
+        $data = $request->validate([
+            'date' => ['required', 'date_format:Y-m-d'],
+            'include' => [
+                'nullable',
+                'integer',
+                Rule::exists((new Appointment)->getTable(), 'id')
+                    ->where(fn ($query) => $query->where('user_id', $userId)),
+            ],
+        ]);
+        $start = Carbon::createFromFormat('Y-m-d', $data['date'])->startOfDay();
+        $end = $start->copy()->addDay();
+
+        $appointments = Appointment::with('transactions')
+            ->where('user_id', $userId)
+            ->where(function ($query) use ($data, $end, $start) {
+                $query->where(function ($query) use ($end, $start) {
+                    $query
+                        ->where('start_at', '>=', $start)
+                        ->where('start_at', '<', $end);
+                });
+
+                if (! empty($data['include'])) {
+                    $query->orWhere('id', $data['include']);
+                }
+            })
+            ->orderBy('start_at')
+            ->get()
+            ->map(fn (Appointment $appointment) => $this->formatAppointment($appointment))
+            ->values();
+
+        return response()->json(['data' => $appointments]);
+    }
+
     private function getMonthAppointments(int $userId, int $year, int $month): array
     {
         $start = Carbon::create($year, $month, 1)->startOfMonth();
         $end   = $start->copy()->endOfMonth();
 
-        return Appointment::where('user_id', $userId)
+        return Appointment::with('transactions')
+            ->where('user_id', $userId)
             ->whereBetween('start_at', [$start, $end])
             ->orderBy('start_at')
             ->get()
@@ -92,6 +130,10 @@ class CalendarController extends Controller
 
     private function formatAppointment(Appointment $a): array
     {
+        $a->loadMissing('transactions');
+        $linkedIncome = $a->transactions->where('type', 'income')->sum('amount');
+        $linkedExpense = $a->transactions->where('type', 'expense')->sum('amount');
+
         return [
             'id'             => $a->id,
             'title'          => $a->title,
@@ -102,6 +144,9 @@ class CalendarController extends Controller
             'start_time'     => $a->start_at?->format('H:i'),
             'end_time'       => $a->end_at?->format('H:i'),
             'remind_minutes' => $a->remind_minutes,
+            'linked_transactions_count' => $a->transactions->count(),
+            'linked_income' => (float) $linkedIncome,
+            'linked_expense' => (float) $linkedExpense,
         ];
     }
 }

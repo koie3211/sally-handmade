@@ -81,6 +81,7 @@
                                         'type'             => $transaction->type,
                                         'amount'           => (string) $transaction->amount,
                                         'category_id'      => $transaction->category_id,
+                                        'appointment_id'   => $transaction->appointment_id,
                                         'note'             => $transaction->note,
                                         'transaction_date' => $transaction->transaction_date->format('Y-m-d'),
                                     ];
@@ -138,6 +139,9 @@
                                             </p>
                                             @if ($transaction->note)
                                                 <p class="truncate text-xs text-slate-400">{{ $transaction->note }}</p>
+                                            @endif
+                                            @if ($transaction->appointment_id)
+                                                <p class="mt-0.5 text-[10px] font-medium text-indigo-500">已關聯行事曆</p>
                                             @endif
                                         </div>
 

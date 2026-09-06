@@ -154,6 +154,10 @@
                         <div class="min-w-0 flex-1 border-l-2 border-indigo-300 pl-3">
                             <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
                             <p class="text-xs text-slate-400 truncate mt-0.5" x-text="apt.note" x-show="apt.note"></p>
+                            <p x-show="apt.linked_transactions_count > 0"
+                               class="mt-0.5 text-[10px] font-medium text-indigo-500"
+                               x-text="linkedTransactionLabel(apt)">
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -217,6 +221,10 @@
                             <p class="text-xs text-slate-400 mt-0.5"
                                x-text="apt.start_time + (apt.end_time ? ' – ' + apt.end_time : '')"></p>
                             <p class="text-xs text-slate-400 truncate" x-text="apt.note" x-show="apt.note"></p>
+                            <p x-show="apt.linked_transactions_count > 0"
+                               class="mt-0.5 text-[10px] font-medium text-indigo-500"
+                               x-text="linkedTransactionLabel(apt)">
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -447,6 +455,17 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         get dayAppointments() {
             if (!this.selectedDate) return []
             return this.appointments.filter(a => a.start_date === this.selectedDate)
+        },
+
+        linkedTransactionLabel(appointment) {
+            const parts = [`已連結 ${appointment.linked_transactions_count} 筆帳目`]
+            if (appointment.linked_income > 0) {
+                parts.push(`收入 +${Number(appointment.linked_income).toLocaleString('zh-TW')}`)
+            }
+            if (appointment.linked_expense > 0) {
+                parts.push(`支出 -${Number(appointment.linked_expense).toLocaleString('zh-TW')}`)
+            }
+            return parts.join(' · ')
         },
 
         swipeX(id) {

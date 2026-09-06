@@ -94,6 +94,7 @@ Route::domain('budget.sally-handmade.com')->group(function () {
         Route::put('/appointments/{appointment}', [Budget\CalendarController::class, 'update'])->name('budget.appointments.update');
         Route::delete('/appointments/{appointment}', [Budget\CalendarController::class, 'destroy'])->name('budget.appointments.destroy');
         Route::get('/api/calendar/monthly', [Budget\CalendarController::class, 'api'])->name('budget.api.calendar.monthly');
+        Route::get('/api/calendar/available', [Budget\CalendarController::class, 'available'])->name('budget.api.calendar.available');
 
         // 設定
         Route::get('/settings', [Budget\ProfileController::class, 'showSettings'])->name('budget.settings');

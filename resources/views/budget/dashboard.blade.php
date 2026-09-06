@@ -75,6 +75,9 @@
                             </p>
                             <p class="text-xs text-slate-400">
                                 {{ $transaction->transaction_date->format('m/d') }}
+                                @if ($transaction->appointment_id)
+                                    <span class="ml-1 font-medium text-indigo-400">· 已關聯行事曆</span>
+                                @endif
                             </p>
                         </div>
                         {{-- 金額 --}}

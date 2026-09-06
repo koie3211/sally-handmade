@@ -66,7 +66,8 @@
         <div
             x-show="open"
             x-transition:enter="sheet-slide-up"
-            class="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-white px-5 pt-4 shadow-2xl"
+            class="absolute bottom-0 left-0 right-0 overflow-y-auto overscroll-contain rounded-t-3xl bg-white px-5 pt-4 shadow-2xl no-scrollbar"
+            style="max-height: calc(100svh - env(safe-area-inset-top, 0px) - 0.5rem); -webkit-overflow-scrolling: touch;"
             :style="{
                 paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))',
                 transform: `translateY(${dragY}px)`,
@@ -157,13 +158,133 @@
                 </div>
             </div>
 
+            {{-- 行事曆關聯（選填） --}}
+            <div class="mb-5 rounded-2xl border border-slate-200">
+                <button @click="toggleAppointment()"
+                        class="flex w-full items-center justify-between px-4 py-3 text-left">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-700">關聯行事曆</p>
+                        <p class="mt-0.5 text-xs text-slate-400"
+                           x-text="appointmentExpanded ? '選擇既有預約或建立新預約' : '選填，一般記帳不受影響'">
+                        </p>
+                    </div>
+                    <svg class="h-5 w-5 text-slate-400 transition-transform"
+                         :class="appointmentExpanded ? 'rotate-180' : ''"
+                         fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+
+                <div x-show="appointmentExpanded"
+                     x-transition
+                     class="border-t border-slate-100 px-4 pb-4 pt-3">
+                    <div class="mb-3 flex rounded-xl bg-slate-100 p-1 gap-1">
+                        <button @click="setAppointmentAction('existing')"
+                                :class="appointmentAction === 'existing' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'"
+                                class="flex-1 rounded-lg py-2 text-xs font-semibold transition">
+                            選擇既有預約
+                        </button>
+                        <button @click="setAppointmentAction('create')"
+                                :class="appointmentAction === 'create' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'"
+                                class="flex-1 rounded-lg py-2 text-xs font-semibold transition">
+                            新增預約
+                        </button>
+                    </div>
+
+                    <div x-show="appointmentAction === 'existing'">
+                        <p x-show="appointmentsLoading" class="py-4 text-center text-xs text-slate-400">
+                            載入預約中…
+                        </p>
+
+                        <div x-show="!appointmentsLoading && availableAppointments.length > 0"
+                             class="max-h-36 space-y-2 overflow-y-auto no-scrollbar">
+                            <template x-for="appointment in availableAppointments" :key="appointment.id">
+                                <button @click="appointmentId = appointment.id"
+                                        :class="appointmentId === appointment.id
+                                            ? 'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-400'
+                                            : 'border-slate-200 bg-white'"
+                                        class="flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition">
+                                    <div class="w-12 flex-shrink-0 text-center">
+                                        <p class="text-xs font-semibold text-indigo-600" x-text="appointment.start_time"></p>
+                                        <p class="text-[10px] text-slate-400"
+                                           x-show="appointment.start_date !== date"
+                                           x-text="appointment.start_date.slice(5).replace('-', '/')">
+                                        </p>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate text-sm font-medium text-slate-700" x-text="appointment.title"></p>
+                                        <p class="text-[10px] text-slate-400"
+                                           x-show="appointment.linked_transactions_count > 0"
+                                           x-text="'已連結 ' + appointment.linked_transactions_count + ' 筆帳目'">
+                                        </p>
+                                    </div>
+                                    <span class="h-4 w-4 flex-shrink-0 rounded-full border-2"
+                                          :class="appointmentId === appointment.id ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300'">
+                                    </span>
+                                </button>
+                            </template>
+                        </div>
+
+                        <div x-show="!appointmentsLoading && availableAppointments.length === 0"
+                             class="rounded-xl bg-slate-50 px-3 py-4 text-center">
+                            <p class="text-xs text-slate-400">這天沒有可選的預約</p>
+                            <button @click="setAppointmentAction('create')"
+                                    class="mt-2 text-xs font-semibold text-indigo-600">
+                                改為新增預約
+                            </button>
+                        </div>
+                    </div>
+
+                    <div x-show="appointmentAction === 'create'" class="space-y-3">
+                        <div class="rounded-xl bg-indigo-50 px-3 py-2 text-xs text-indigo-600">
+                            預約日期與記帳日期相同：<span class="font-semibold" x-text="date"></span>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block text-xs font-medium text-slate-500">預約標題</label>
+                            <input type="text"
+                                   x-model="appointmentTitle"
+                                   maxlength="100"
+                                   placeholder="請輸入預約標題"
+                                   class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-base text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-slate-500">開始時間</label>
+                                <select x-model="appointmentStartTime"
+                                        @change="if (appointmentEndTime && appointmentEndTime < appointmentStartTime) appointmentEndTime = ''"
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-700 outline-none">
+                                    <template x-for="slot in appointmentTimeSlots" :key="'start-'+slot">
+                                        <option :value="slot" x-text="slot"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-medium text-slate-500">結束時間</label>
+                                <select x-model="appointmentEndTime"
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-700 outline-none">
+                                    <option value="">不設定</option>
+                                    <template x-for="slot in appointmentTimeSlots" :key="'end-'+slot">
+                                        <option :value="slot"
+                                                :disabled="slot < appointmentStartTime"
+                                                x-text="slot">
+                                        </option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- 送出 --}}
             <div class="flex gap-3">
                 <button @click="open=false"
                         class="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-500 transition hover:bg-slate-50">
                     取消
                 </button>
-                <button @click="submit()" :disabled="loading || !amount || !categoryId"
+                <button @click="submit()" :disabled="loading || !amount || !categoryId || !appointmentReady"
                         class="flex-1 rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white shadow-sm
                                transition disabled:opacity-50 active:scale-95 hover:bg-indigo-700">
                     <span x-show="!loading" x-text="editingId ? '儲存' : '新增'"></span>
