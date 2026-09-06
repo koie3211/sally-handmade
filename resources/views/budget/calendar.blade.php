@@ -377,10 +377,10 @@ function calendarApp(initialAppointments, initYear, initMonth) {
 
         init() {
             const slots = []
-            for (let h = 0; h < 24; h++) {
-                for (const m of [0, 30]) {
-                    slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
-                }
+            for (let total = 8 * 60; total <= 20 * 60; total += 5) {
+                const h = Math.floor(total / 60)
+                const m = total % 60
+                slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
             }
             this.timeSlots = slots
             this.buildCalendar()
@@ -522,7 +522,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
         addThirty(time) {
             const [h, m] = time.split(':').map(Number)
             const total = h * 60 + m + 30
-            if (total >= 24 * 60) return ''
+            if (total > 20 * 60) return ''
             return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
         },
 

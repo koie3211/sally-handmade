@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Budget;
 
 use App\Http\Controllers\Controller;
 use App\Models\Budget\Transaction;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -17,14 +18,19 @@ class AnalysisController extends Controller
 
     public function monthly(Request $request): JsonResponse
     {
+        $data = $request->validate([
+            'month' => ['nullable', 'date_format:Y-m'],
+        ]);
+
         $user = auth('budget')->user();
-        $month = $request->input('month', now()->format('Y-m'));
-        [$year, $mon] = explode('-', $month);
+        $month = Carbon::createFromFormat('Y-m', $data['month'] ?? now()->format('Y-m'))->startOfMonth();
 
         $transactions = Transaction::with('category')
             ->where('user_id', $user->id)
-            ->whereYear('transaction_date', $year)
-            ->whereMonth('transaction_date', $mon)
+            ->whereYear('transaction_date', $month->year)
+            ->whereMonth('transaction_date', $month->month)
+            ->orderBy('transaction_date')
+            ->orderBy('id')
             ->get();
 
         $totalExpense = $transactions->where('type', 'expense')->sum('amount');
@@ -44,8 +50,8 @@ class AnalysisController extends Controller
             ->values();
 
         // 近 6 個月趨勢
-        $trend = collect(range(5, 0))->map(function ($monthsAgo) use ($user) {
-            $date = now()->subMonths($monthsAgo);
+        $trend = collect(range(5, 0))->map(function ($monthsAgo) use ($user, $month) {
+            $date = $month->copy()->subMonths($monthsAgo);
             $rows = Transaction::where('user_id', $user->id)
                 ->whereYear('transaction_date', $date->year)
                 ->whereMonth('transaction_date', $date->month)
@@ -65,6 +71,19 @@ class AnalysisController extends Controller
                 'net' => $totalIncome - $totalExpense,
                 'expense_by_category' => $expenseByCategory,
                 'trend' => $trend,
+                'transactions' => $transactions->map(fn (Transaction $transaction) => [
+                    'id' => $transaction->id,
+                    'transaction_date' => $transaction->transaction_date->format('Y-m-d'),
+                    'type' => $transaction->type,
+                    'amount' => (float) $transaction->amount,
+                    'formatted_amount' => $transaction->formatted_amount,
+                    'note' => $transaction->note,
+                    'category' => [
+                        'name' => $transaction->category->name,
+                        'icon' => $transaction->category->icon,
+                        'color' => $transaction->category->color,
+                    ],
+                ])->values(),
             ],
         ]);
     }
