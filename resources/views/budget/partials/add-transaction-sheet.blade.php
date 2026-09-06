@@ -85,12 +85,12 @@
 
             {{-- 支出 / 收入 切換 --}}
             <div class="mb-4 flex rounded-xl bg-slate-100 p-1 gap-1">
-                <button @click="type='expense'; categoryId=filteredCategories[0]?.id"
+                <button @click="setType('expense')"
                         :class="type==='expense' ? 'bg-white text-rose-500 shadow-sm' : 'text-slate-500'"
                         class="flex-1 rounded-lg py-2 text-sm font-semibold transition">
                     支出
                 </button>
-                <button @click="type='income'; categoryId=filteredCategories[0]?.id"
+                <button @click="setType('income')"
                         :class="type==='income' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500'"
                         class="flex-1 rounded-lg py-2 text-sm font-semibold transition">
                     收入

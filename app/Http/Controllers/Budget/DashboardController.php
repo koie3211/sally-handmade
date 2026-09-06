@@ -32,12 +32,14 @@ class DashboardController extends Controller
             ->get();
 
         $categories = Category::forUser($user->id);
+        $defaults = $user->defaultBookkeeping();
 
         return view('budget.dashboard', compact(
             'todayExpense',
             'todayIncome',
             'recentTransactions',
             'categories',
+            'defaults',
         ));
     }
 }

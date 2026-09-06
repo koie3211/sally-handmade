@@ -107,11 +107,13 @@
 
         // Alpine 元件
         document.addEventListener('alpine:init', () => {
-            Alpine.data('addTransaction', (categories) => ({
+            Alpine.data('addTransaction', (categories, defaults = {}) => ({
                 // ── 表單狀態 ─────────────────────────────────
                 open: false,
                 loading: false,
-                type: 'expense',
+                type: defaults.type || 'expense',
+                defaultType: defaults.type || 'expense',
+                defaultCategoryId: defaults.category_id ?? null,
                 amount: '',
                 categoryId: null,
                 note: '',
@@ -167,9 +169,23 @@
                     this.open       = true
                 },
 
+                categoryForType(type) {
+                    const list = type === 'expense' ? this.expenseCategories : this.incomeCategories
+                    if (type === this.defaultType && this.defaultCategoryId && list.some(c => c.id === this.defaultCategoryId)) {
+                        return this.defaultCategoryId
+                    }
+                    return list[0]?.id ?? null
+                },
+
+                setType(type) {
+                    this.type = type
+                    this.categoryId = this.categoryForType(type)
+                },
+
                 reset() {
+                    this.type = this.defaultType
                     this.amount = ''
-                    this.categoryId = this.filteredCategories[0]?.id ?? null
+                    this.categoryId = this.categoryForType(this.type)
                     this.note = ''
                     this.date = new Date().toISOString().slice(0, 10)
                     this.loading = false

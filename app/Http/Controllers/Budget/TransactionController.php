@@ -31,6 +31,7 @@ class TransactionController extends Controller
         $monthlyIncome = $transactions->flatten()->where('type', 'income')->sum('amount');
 
         $categories = Category::forUser($user->id);
+        $defaults = $user->defaultBookkeeping();
 
         return view('budget.history', compact(
             'transactions',
@@ -38,6 +39,7 @@ class TransactionController extends Controller
             'monthlyIncome',
             'month',
             'categories',
+            'defaults',
         ));
     }
 

@@ -3,7 +3,7 @@
 @section('title', '帳目記錄')
 
 @section('content')
-<div x-data="addTransaction({{ $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'icon' => $c->icon, 'color' => $c->color, 'type' => $c->type])->toJson() }})">
+<div x-data="addTransaction({{ $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'icon' => $c->icon, 'color' => $c->color, 'type' => $c->type])->toJson() }}, @js($defaults))">
 
     {{-- 頂部標題 --}}
     <div class="bg-white px-5 pt-12 pb-4 shadow-sm safe-area-top">

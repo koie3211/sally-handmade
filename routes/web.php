@@ -97,6 +97,7 @@ Route::domain('budget.sally-handmade.com')->group(function () {
 
         // 設定
         Route::get('/settings', [Budget\ProfileController::class, 'showSettings'])->name('budget.settings');
+        Route::put('/settings/defaults', [Budget\ProfileController::class, 'updateDefaults'])->name('budget.settings.defaults');
         Route::put('/settings/password', [Budget\ProfileController::class, 'changePassword'])->name('budget.settings.password');
     });
 });

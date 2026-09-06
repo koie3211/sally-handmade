@@ -3,7 +3,7 @@
 @section('title', '今日消費')
 
 @section('content')
-<div x-data="addTransaction({{ $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'icon' => $c->icon, 'color' => $c->color, 'type' => $c->type])->toJson() }})" x-init="openSheet()">
+<div x-data="addTransaction({{ $categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'icon' => $c->icon, 'color' => $c->color, 'type' => $c->type])->toJson() }}, @js($defaults))" x-init="openSheet()">
 
     {{-- 頂部：今日概覽 --}}
     <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 px-6 pb-8 pt-12 text-white safe-area-top">
