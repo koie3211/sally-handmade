@@ -3,7 +3,7 @@
 @section('title', '行事曆')
 
 @section('content')
-<div x-data="calendarApp({{ json_encode($appointments) }}, {{ $year }}, {{ $month }})"
+<div x-data="calendarApp({{ json_encode($appointments) }}, {{ json_encode($nextWeekProjected) }}, {{ $year }}, {{ $month }})"
      x-init="init()">
 
     {{-- 頂部：月份導覽（僅保留導覽，不含日期格）--}}
@@ -71,10 +71,14 @@
                     <template x-if="day && day.events.length > 0">
                         <div class="space-y-0.5">
                             <template x-for="(ev, ei) in day.events.slice(0, 3)" :key="ev.id">
-                                <div class="flex items-center gap-0.5 rounded px-1 py-0.5 bg-indigo-100 text-indigo-700"
-                                     @click.stop="openEditSheet(ev)">
-                                    <span class="w-1 h-1 flex-shrink-0 rounded-full bg-indigo-500"></span>
-                                    <span class="truncate text-[10px] font-medium leading-tight" x-text="ev.title"></span>
+                                <div class="flex items-center gap-0.5 rounded px-1 py-0.5"
+                                     :class="ev.is_projected ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'"
+                                     @click.stop="ev.is_projected ? openProjectedSheet(ev) : openEditSheet(ev)">
+                                    <span class="w-1 h-1 flex-shrink-0 rounded-full"
+                                          :class="ev.is_projected ? 'bg-amber-500' : 'bg-indigo-500'"></span>
+                                    <span class="truncate text-[10px] font-medium leading-tight"
+                                          :class="ev.is_projected ? 'text-amber-700' : ''"
+                                          x-text="ev.is_projected ? '預計 · ' + ev.title : ev.title"></span>
                                 </div>
                             </template>
 
@@ -121,7 +125,8 @@
                 <div class="relative overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100"
                      style="min-height: 64px">
                     <div class="absolute inset-0 flex">
-                        <button @click="confirmDelete(apt.id); resetSwipe(apt.id)"
+                        <button x-show="!apt.is_projected"
+                                @click="confirmDelete(apt.id); resetSwipe(apt.id)"
                                 class="flex w-20 flex-shrink-0 flex-col items-center justify-center gap-1 bg-rose-500 text-white">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -129,12 +134,12 @@
                             <span class="text-xs font-semibold">刪除</span>
                         </button>
                         <div class="flex-1"></div>
-                        <button @click="openEditSheet(apt); resetSwipe(apt.id)"
+                        <button @click="apt.is_projected ? openProjectedSheet(apt) : openEditSheet(apt); resetSwipe(apt.id)"
                                 class="flex w-20 flex-shrink-0 flex-col items-center justify-center gap-1 bg-indigo-500 text-white">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
-                            <span class="text-xs font-semibold">編輯</span>
+                            <span class="text-xs font-semibold" x-text="apt.is_projected ? '建立' : '編輯'"></span>
                         </button>
                     </div>
 
@@ -148,11 +153,15 @@
                          @touchend="swipeEnd(apt.id)"
                          @click="resetAllSwipe()">
                         <div class="flex-shrink-0 w-14 text-right">
-                            <p class="text-xs font-semibold text-indigo-600" x-text="apt.start_time"></p>
+                            <p class="text-xs font-semibold"
+                               :class="apt.is_projected ? 'text-amber-600' : 'text-indigo-600'"
+                               x-text="apt.start_time"></p>
                             <p class="text-xs text-slate-400" x-text="apt.end_time" x-show="apt.end_time"></p>
                         </div>
-                        <div class="min-w-0 flex-1 border-l-2 border-indigo-300 pl-3">
+                        <div class="min-w-0 flex-1 border-l-2 pl-3"
+                             :class="apt.is_projected ? 'border-amber-300' : 'border-indigo-300'">
                             <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
+                            <p x-show="apt.is_projected" class="text-[10px] font-semibold text-amber-600">下週預計，可編輯後建立</p>
                             <p class="text-xs text-slate-400 truncate mt-0.5" x-text="apt.note" x-show="apt.note"></p>
                             <p x-show="apt.linked_transactions_count > 0"
                                class="mt-0.5 text-[10px] font-medium text-indigo-500"
@@ -184,7 +193,8 @@
                 <div class="relative overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100"
                      style="min-height: 64px">
                     <div class="absolute inset-0 flex">
-                        <button @click="confirmDelete(apt.id); resetSwipe(apt.id)"
+                        <button x-show="!apt.is_projected"
+                                @click="confirmDelete(apt.id); resetSwipe(apt.id)"
                                 class="flex w-20 flex-shrink-0 flex-col items-center justify-center gap-1 bg-rose-500 text-white">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -192,12 +202,12 @@
                             <span class="text-xs font-semibold">刪除</span>
                         </button>
                         <div class="flex-1"></div>
-                        <button @click="openEditSheet(apt); resetSwipe(apt.id)"
+                        <button @click="apt.is_projected ? openProjectedSheet(apt) : openEditSheet(apt); resetSwipe(apt.id)"
                                 class="flex w-20 flex-shrink-0 flex-col items-center justify-center gap-1 bg-indigo-500 text-white">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
-                            <span class="text-xs font-semibold">編輯</span>
+                            <span class="text-xs font-semibold" x-text="apt.is_projected ? '建立' : '編輯'"></span>
                         </button>
                     </div>
 
@@ -210,14 +220,18 @@
                          @touchmove="swipeMove(apt.id, $event)"
                          @touchend="swipeEnd(apt.id)"
                          @click="resetAllSwipe()">
-                        <div class="flex-shrink-0 rounded-xl bg-indigo-50 px-2 py-1 text-center min-w-[3rem]">
-                            <p class="text-lg font-bold text-indigo-600 leading-none"
+                        <div class="flex-shrink-0 rounded-xl px-2 py-1 text-center min-w-[3rem]"
+                             :class="apt.is_projected ? 'bg-amber-50' : 'bg-indigo-50'">
+                            <p class="text-lg font-bold leading-none"
+                               :class="apt.is_projected ? 'text-amber-600' : 'text-indigo-600'"
                                x-text="apt.start_at.substring(8,10)"></p>
-                            <p class="text-xs text-indigo-400"
+                            <p class="text-xs"
+                               :class="apt.is_projected ? 'text-amber-400' : 'text-indigo-400'"
                                x-text="parseInt(apt.start_at.substring(5,7)) + ' 月'"></p>
                         </div>
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-semibold text-slate-800 truncate" x-text="apt.title"></p>
+                            <p x-show="apt.is_projected" class="text-[10px] font-semibold text-amber-600">下週預計，可編輯後建立</p>
                             <p class="text-xs text-slate-400 mt-0.5"
                                x-text="apt.start_time + (apt.end_time ? ' – ' + apt.end_time : '')"></p>
                             <p class="text-xs text-slate-400 truncate" x-text="apt.note" x-show="apt.note"></p>
@@ -228,6 +242,32 @@
                         </div>
                     </div>
                 </div>
+            </template>
+        </div>
+    </div>
+
+    {{-- 下週預計預約 --}}
+    <div x-show="nextWeekAppointments.length > 0" class="mx-4 mt-5 pb-24">
+        <div class="mb-3 flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-amber-700">下週預計預約</h2>
+            <span class="text-xs text-amber-500" x-text="nextWeekLabel()"></span>
+        </div>
+
+        <div class="space-y-2">
+            <template x-for="apt in nextWeekAppointments" :key="'next-week-' + apt.id">
+                <button type="button"
+                        @click="openProjectedSheet(apt)"
+                        class="flex w-full items-start gap-3 rounded-2xl border border-dashed border-amber-200 bg-amber-50/60 px-4 py-3 text-left">
+                    <div class="min-w-[3.5rem] text-center">
+                        <p class="text-xs font-semibold text-amber-600" x-text="formatProjectedDate(apt.start_date)"></p>
+                        <p class="mt-1 text-sm font-bold text-amber-700" x-text="apt.start_time"></p>
+                    </div>
+                    <div class="min-w-0 flex-1 border-l-2 border-amber-300 pl-3">
+                        <p class="truncate text-sm font-semibold text-slate-800" x-text="apt.title"></p>
+                        <p class="mt-0.5 text-xs text-amber-700">預計聯繫 · 點擊後編輯並建立</p>
+                        <p x-show="apt.note" class="mt-0.5 truncate text-xs text-slate-400" x-text="apt.note"></p>
+                    </div>
+                </button>
             </template>
         </div>
     </div>
@@ -411,11 +451,12 @@
 </div>
 
 <script>
-function calendarApp(initialAppointments, initYear, initMonth) {
+function calendarApp(initialAppointments, initialNextWeekAppointments, initYear, initMonth) {
     return {
         currentYear:  initYear,
         currentMonth: initMonth,
         appointments: initialAppointments,
+        nextWeekAppointments: initialNextWeekAppointments,
         selectedDate: null,
         calendarDays: [],
         swipe: {},
@@ -454,7 +495,17 @@ function calendarApp(initialAppointments, initYear, initMonth) {
 
         get dayAppointments() {
             if (!this.selectedDate) return []
-            return this.appointments.filter(a => a.start_date === this.selectedDate)
+            return this.displayedAppointments.filter(a => a.start_date === this.selectedDate)
+        },
+
+        get displayedAppointments() {
+            return [
+                ...this.appointments,
+                ...this.nextWeekAppointments.filter(a =>
+                    a.start_date.startsWith(`${this.currentYear}-${String(this.currentMonth).padStart(2, '0')}`)
+                    && !this.appointments.some(existing => existing.id === a.id)
+                ),
+            ]
         },
 
         linkedTransactionLabel(appointment) {
@@ -557,7 +608,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
 
             // 建立日期 → 預約 map
             const dayMap = {}
-            this.appointments.forEach(a => {
+            this.displayedAppointments.forEach(a => {
                 if (!dayMap[a.start_date]) dayMap[a.start_date] = []
                 dayMap[a.start_date].push(a)
             })
@@ -620,6 +671,7 @@ function calendarApp(initialAppointments, initYear, initMonth) {
                 })
                 const json = await res.json()
                 this.appointments = json.data
+                this.nextWeekAppointments = json.next_week_projected ?? []
                 this.buildCalendar()
             } catch (e) {
                 console.error(e)
@@ -653,6 +705,17 @@ function calendarApp(initialAppointments, initYear, initMonth) {
             const d = new Date(this.form.date + 'T00:00:00')
             const weekNames = ['日', '一', '二', '三', '四', '五', '六']
             return `${d.getMonth() + 1} 月 ${d.getDate()} 日（${weekNames[d.getDay()]}）`
+        },
+
+        nextWeekLabel() {
+            if (!this.nextWeekAppointments.length) return ''
+            const dates = this.nextWeekAppointments.map(a => a.start_date).sort()
+            return `${this.formatProjectedDate(dates[0])}－${this.formatProjectedDate(dates[dates.length - 1])}`
+        },
+
+        formatProjectedDate(date) {
+            const d = new Date(date + 'T00:00:00')
+            return `${d.getMonth() + 1}/${d.getDate()}`
         },
 
         shiftFormDate(days) {
@@ -723,6 +786,23 @@ function calendarApp(initialAppointments, initYear, initMonth) {
             }
             this.sheetOpen = true
             this.dragY     = 0
+            this.scrollTimeIntoView()
+        },
+
+        openProjectedSheet(apt) {
+            this.editingId = null
+            this.errorMsg = ''
+            const start = this.splitDateTime(apt.start_at)
+            const end = this.splitDateTime(apt.end_at)
+            this.form = {
+                title: apt.title,
+                date: start.date || apt.start_date || this.toDateStr(new Date()),
+                start_time: start.time || apt.start_time || '09:00',
+                end_time: end.time || apt.end_time || '',
+                note: apt.note ?? '',
+            }
+            this.sheetOpen = true
+            this.dragY = 0
             this.scrollTimeIntoView()
         },
 

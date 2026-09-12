@@ -19,8 +19,14 @@ class CalendarController extends Controller
         $month = (int) $request->input('month', now()->month);
 
         $appointments = $this->getMonthAppointments($user->id, $year, $month);
+        $nextWeekProjected = $this->getNextWeekProjectedAppointments($user->id);
 
-        return view('budget.calendar', compact('appointments', 'year', 'month'));
+        return view('budget.calendar', compact(
+            'appointments',
+            'nextWeekProjected',
+            'year',
+            'month',
+        ));
     }
 
     public function store(Request $request): JsonResponse
@@ -74,8 +80,12 @@ class CalendarController extends Controller
         $month = (int) $request->input('month', now()->month);
 
         $appointments = $this->getMonthAppointments($user->id, $year, $month);
+        $nextWeekProjected = $this->getNextWeekProjectedAppointments($user->id);
 
-        return response()->json(['data' => $appointments]);
+        return response()->json([
+            'data' => $appointments,
+            'next_week_projected' => $nextWeekProjected,
+        ]);
     }
 
     public function available(Request $request): JsonResponse
@@ -128,25 +138,71 @@ class CalendarController extends Controller
             ->toArray();
     }
 
-    private function formatAppointment(Appointment $a): array
+    private function getNextWeekProjectedAppointments(int $userId): array
     {
-        $a->loadMissing('transactions');
-        $linkedIncome = $a->transactions->where('type', 'income')->sum('amount');
-        $linkedExpense = $a->transactions->where('type', 'expense')->sum('amount');
+        $nextMonday = now()->startOfDay()->next(Carbon::MONDAY);
+        $nextSunday = $nextMonday->copy()->endOfWeek(Carbon::SUNDAY);
+        $sourceStart = $nextMonday->copy()->subMonth()->startOfMonth();
+        $sourceEnd = $nextSunday->copy()->subMonth()->endOfMonth();
+
+        return Appointment::query()
+            ->where('user_id', $userId)
+            ->whereBetween('start_at', [$sourceStart, $sourceEnd])
+            ->orderBy('start_at')
+            ->get()
+            ->map(function (Appointment $appointment) use ($nextMonday, $nextSunday) {
+                $projectedStart = $appointment->start_at->copy()->addMonth();
+
+                if (! $projectedStart->betweenIncluded($nextMonday, $nextSunday)) {
+                    return null;
+                }
+
+                $projectedEnd = $appointment->end_at?->copy()->addMonth();
+
+                return $this->formatAppointment(
+                    $appointment,
+                    projectedStart: $projectedStart,
+                    projectedEnd: $projectedEnd,
+                );
+            })
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    private function formatAppointment(
+        Appointment $a,
+        ?Carbon $projectedStart = null,
+        ?Carbon $projectedEnd = null,
+    ): array
+    {
+        $startAt = $projectedStart ?? $a->start_at;
+        $endAt = $projectedEnd ?? $a->end_at;
+        $isProjected = $projectedStart !== null;
+        $linkedIncome = 0;
+        $linkedExpense = 0;
+
+        if (! $isProjected) {
+            $a->loadMissing('transactions');
+            $linkedIncome = $a->transactions->where('type', 'income')->sum('amount');
+            $linkedExpense = $a->transactions->where('type', 'expense')->sum('amount');
+        }
 
         return [
-            'id'             => $a->id,
+            'id'             => $isProjected ? "projected-{$a->id}-{$startAt->format('Y-m-d')}" : $a->id,
+            'source_id'      => $isProjected ? $a->id : null,
+            'is_projected'   => $isProjected,
             'title'          => $a->title,
             'note'           => $a->note,
-            'start_at'       => $a->start_at?->format('Y-m-d\TH:i'),
-            'end_at'         => $a->end_at?->format('Y-m-d\TH:i'),
-            'start_date'     => $a->start_at?->format('Y-m-d'),
-            'start_time'     => $a->start_at?->format('H:i'),
-            'end_time'       => $a->end_at?->format('H:i'),
+            'start_at'       => $startAt?->format('Y-m-d\TH:i'),
+            'end_at'         => $endAt?->format('Y-m-d\TH:i'),
+            'start_date'     => $startAt?->format('Y-m-d'),
+            'start_time'     => $startAt?->format('H:i'),
+            'end_time'       => $endAt?->format('H:i'),
             'remind_minutes' => $a->remind_minutes,
-            'linked_transactions_count' => $a->transactions->count(),
-            'linked_income' => (float) $linkedIncome,
-            'linked_expense' => (float) $linkedExpense,
+            'linked_transactions_count' => $isProjected ? 0 : $a->transactions->count(),
+            'linked_income' => $isProjected ? 0 : (float) $linkedIncome,
+            'linked_expense' => $isProjected ? 0 : (float) $linkedExpense,
         ];
     }
 }
